@@ -20,6 +20,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     async function checkAuth() {
+      // Do not probe /auth/me on public auth screens to keep the console clean
+      const isPublicAuthRoute = ['/login', '/register', '/forgot-password', '/reset-password'].some(
+        (path) => window.location.pathname.startsWith(path)
+      );
+
+      if (isPublicAuthRoute) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const res = await api.get('/auth/me');
         if (res.data?.data) {

@@ -28,12 +28,10 @@ export const DashboardPage: React.FC = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
-  const [responseTime, setResponseTime] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchDashboardData = async () => {
     setIsLoading(true);
-    const start = performance.now();
     try {
       const params = new URLSearchParams();
       if (selectedPlanId) params.append('planId', selectedPlanId);
@@ -48,10 +46,6 @@ export const DashboardPage: React.FC = () => {
         api.get('/catalog/plans'),
         api.get('/catalog/customers'),
       ]);
-
-      const end = performance.now();
-      const serverHeader = summaryRes.headers['x-response-time'];
-      setResponseTime(serverHeader || `${(end - start).toFixed(1)}ms`);
 
       setSummary(summaryRes.data.data);
       setSeries(seriesRes.data.data);
@@ -82,15 +76,7 @@ export const DashboardPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Response Time Badge (PRD §13 Proof) */}
-        <div className="flex items-center gap-3">
-          {responseTime && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-[11px] font-semibold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>Query Execution: {responseTime} (Target: &lt; 2s)</span>
-            </div>
-          )}
-
+        <div className="flex items-center gap-2">
           <button
             onClick={fetchDashboardData}
             className="p-1.5 rounded-md text-slate-500 hover:text-indigo-600 hover:bg-slate-100 transition-colors"

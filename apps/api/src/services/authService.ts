@@ -70,6 +70,8 @@ export class AuthService {
 
       const token = signToken(authUser);
 
+      logger.info(`📝 [AUTH] New customer registered: ${customer.name} <${data.email}> (ID: ${customer.id})`);
+
       return {
         user: {
           id: user.id,
@@ -107,6 +109,8 @@ export class AuthService {
     };
 
     const token = signToken(authUser);
+
+    logger.info(`🔑 [AUTH] Successful login: ${user.email} (Role: ${user.role})`);
 
     return {
       user: {
