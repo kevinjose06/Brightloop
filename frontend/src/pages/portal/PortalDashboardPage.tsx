@@ -7,15 +7,9 @@ import {
   Repeat,
   Receipt,
   Printer,
-  PauseCircle,
-  PlayCircle,
-  XCircle,
-  RotateCw,
   AlertCircle,
   CheckCircle2,
-  Building,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
 
 export const PortalDashboardPage: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -95,11 +89,6 @@ export const PortalDashboardPage: React.FC = () => {
           <p className="text-xs text-slate-500">
             Account: <span className="font-semibold text-slate-800">{user?.name}</span> ({user?.email})
           </p>
-        </div>
-
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-700 text-xs font-semibold">
-          <Building className="w-3.5 h-3.5" />
-          <span>Strict Anti-IDOR Ownership Scoped</span>
         </div>
       </div>
 
@@ -261,4 +250,3 @@ export const PortalDashboardPage: React.FC = () => {
     </div>
   );
 };
-

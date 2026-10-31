@@ -111,7 +111,6 @@ export class SubscriptionService {
     }
 
     // Availability dates validation
-    const now = new Date();
     if (data.startDate < plan.availableFrom || data.startDate > plan.availableTo) {
       throw AppError.planUnavailable(
         `Plan is only available between ${plan.availableFrom.toISOString().slice(0, 10)} and ${plan.availableTo.toISOString().slice(0, 10)}`
@@ -137,7 +136,24 @@ export class SubscriptionService {
     }
 
     if (inputLines.length === 0) {
-      throw AppError.badRequest('Subscription must contain at least one line item');
+      // Fallback: If no lines provided and no template, assign the first active product
+      const defaultProduct = await prisma.product.findFirst({
+        where: { isActive: true },
+        include: { variants: true },
+        orderBy: { createdAt: 'asc' },
+      });
+      if (defaultProduct) {
+        inputLines = [
+          {
+            productId: defaultProduct.id,
+            variantId: null,
+            quantity: plan.minQuantity || 1,
+            taxId: null,
+          },
+        ];
+      } else {
+        throw AppError.badRequest('Subscription must contain at least one line item');
+      }
     }
 
     // Resolve products, variants, effective prices
@@ -187,38 +203,44 @@ export class SubscriptionService {
 
     const number = await this.getNextSubscriptionNumber();
 
-    return prisma.$transaction(async (tx) => {
-      const subscription = await tx.subscription.create({
-        data: {
-          number,
-          customerId: data.customerId,
-          planId: data.planId,
-          templateId: data.templateId || null,
-          status: SubscriptionStatus.DRAFT,
-          startDate: data.startDate,
-          expiryDate: data.expiryDate,
-          nextInvoiceDate: data.startDate,
-          paymentTerms: data.paymentTerms || PaymentTerms.IMMEDIATE,
-          createdById: actorId,
-          lines: {
-            create: resolvedLines.map((l) => ({
-              productId: l.productId,
-              variantId: l.variantId,
-              quantity: l.quantity,
-              unitPrice: l.unitPrice,
-              amount: l.amount,
-              taxId: l.taxId,
-            })),
+    const subscription = await prisma.$transaction(
+      async (tx) => {
+        return tx.subscription.create({
+          data: {
+            number,
+            customerId: data.customerId,
+            planId: data.planId,
+            templateId: data.templateId || null,
+            status: SubscriptionStatus.DRAFT,
+            startDate: data.startDate,
+            expiryDate: data.expiryDate,
+            nextInvoiceDate: data.startDate,
+            paymentTerms: data.paymentTerms || PaymentTerms.IMMEDIATE,
+            createdById: actorId,
+            lines: {
+              create: resolvedLines.map((l) => ({
+                productId: l.productId,
+                variantId: l.variantId,
+                quantity: l.quantity,
+                unitPrice: l.unitPrice,
+                amount: l.amount,
+                taxId: l.taxId,
+              })),
+            },
           },
-        },
-        include: {
-          customer: true,
-          plan: true,
-          lines: { include: { product: true, variant: true } },
-        },
-      });
+          include: {
+            customer: true,
+            plan: true,
+            lines: { include: { product: true, variant: true } },
+          },
+        });
+      },
+      { maxWait: 10000, timeout: 30000 }
+    );
 
-      await tx.auditLog.create({
+    // Record audit log asynchronously so network latency does not fail the primary contract creation
+    prisma.auditLog
+      .create({
         data: {
           actorId,
           action: 'CREATE_SUBSCRIPTION',
@@ -226,12 +248,14 @@ export class SubscriptionService {
           entityId: subscription.id,
           meta: { number: subscription.number, customerId: subscription.customerId },
         },
-      });
+      })
+      .catch((err) => logger.error({ err }, 'Failed to record audit log for subscription creation'));
 
-      logger.info(`📄 [SUBSCRIPTION] Created ${subscription.number} for ${subscription.customer.name} (Plan: ${subscription.plan.name})`);
+    logger.info(
+      `📄 [SUBSCRIPTION] Created ${subscription.number} for ${subscription.customer.name} (Plan: ${subscription.plan.name})`
+    );
 
-      return subscription;
-    });
+    return subscription;
   }
 
   static async transition(
@@ -297,14 +321,19 @@ export class SubscriptionService {
       updateData.nextInvoiceDate = sub.startDate;
     }
 
-    return prisma.$transaction(async (tx) => {
-      const updated = await tx.subscription.update({
-        where: { id },
-        data: updateData,
-        include: { plan: true, customer: true, lines: true },
-      });
+    const updated = await prisma.$transaction(
+      async (tx) => {
+        return tx.subscription.update({
+          where: { id },
+          data: updateData,
+          include: { plan: true, customer: true, lines: true },
+        });
+      },
+      { maxWait: 10000, timeout: 30000 }
+    );
 
-      await tx.auditLog.create({
+    prisma.auditLog
+      .create({
         data: {
           actorId,
           action: 'TRANSITION_SUBSCRIPTION',
@@ -312,12 +341,12 @@ export class SubscriptionService {
           entityId: id,
           meta: { from: current, to: targetState },
         },
-      });
+      })
+      .catch((err) => logger.error({ err }, 'Failed to record audit log for transition'));
 
-      logger.info(`🔄 [SUBSCRIPTION] ${sub.number} transitioned: ${current} ➔ ${targetState}`);
+    logger.info(`🔄 [SUBSCRIPTION] ${sub.number} transitioned: ${current} ➔ ${targetState}`);
 
-      return updated;
-    });
+    return updated;
   }
 
   static async togglePause(id: string, actorId: string, customerScopeId?: string) {
@@ -341,23 +370,28 @@ export class SubscriptionService {
 
     const nextPauseState = !sub.isPaused;
 
-    return prisma.$transaction(async (tx) => {
-      const updated = await tx.subscription.update({
-        where: { id },
-        data: { isPaused: nextPauseState },
-      });
+    const updated = await prisma.$transaction(
+      async (tx) => {
+        return tx.subscription.update({
+          where: { id },
+          data: { isPaused: nextPauseState },
+        });
+      },
+      { maxWait: 10000, timeout: 30000 }
+    );
 
-      await tx.auditLog.create({
+    prisma.auditLog
+      .create({
         data: {
           actorId,
           action: nextPauseState ? 'PAUSE_SUBSCRIPTION' : 'RESUME_SUBSCRIPTION',
           entity: 'Subscription',
           entityId: id,
         },
-      });
+      })
+      .catch((err) => logger.error({ err }, 'Failed to record audit log for togglePause'));
 
-      return updated;
-    });
+    return updated;
   }
 
   static async renew(id: string, actorId: string, customerScopeId?: string) {
@@ -392,16 +426,21 @@ export class SubscriptionService {
         break;
     }
 
-    return prisma.$transaction(async (tx) => {
-      const updated = await tx.subscription.update({
-        where: { id },
-        data: {
-          expiryDate: newExpiry,
-          status: SubscriptionStatus.ACTIVE,
-        },
-      });
+    const updated = await prisma.$transaction(
+      async (tx) => {
+        return tx.subscription.update({
+          where: { id },
+          data: {
+            expiryDate: newExpiry,
+            status: SubscriptionStatus.ACTIVE,
+          },
+        });
+      },
+      { maxWait: 10000, timeout: 30000 }
+    );
 
-      await tx.auditLog.create({
+    prisma.auditLog
+      .create({
         data: {
           actorId,
           action: 'RENEW_SUBSCRIPTION',
@@ -409,10 +448,9 @@ export class SubscriptionService {
           entityId: id,
           meta: { oldExpiry: sub.expiryDate, newExpiry },
         },
-      });
+      })
+      .catch((err) => logger.error({ err }, 'Failed to record audit log for renew'));
 
-      return updated;
-    });
+    return updated;
   }
 }
-

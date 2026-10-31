@@ -8,6 +8,7 @@ export const RegisterPage: React.FC = () => {
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [email, setEmail] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
   const [taxId, setTaxId] = useState('');
@@ -32,21 +33,27 @@ export const RegisterPage: React.FC = () => {
       return;
     }
 
+    if (phone && phone.length !== 10) {
+      setError('Mobile number must be exactly 10 digits');
+      return;
+    }
+
     setError(null);
     setIsLoading(true);
 
     try {
+      const fullPhone = phone ? `${countryCode} ${phone}` : undefined;
       const res = await api.post('/auth/register', {
         name,
         company,
         email,
-        phone,
+        phone: fullPhone,
         address,
         taxId,
         password,
       });
 
-      login(res.data.data);
+      login(res.data.data, res.data.token);
       navigate('/portal');
     } catch (err: any) {
       setError(err.response?.data?.error?.message || 'Registration failed');
@@ -122,15 +129,49 @@ export const RegisterPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
-                Phone Number
+                Mobile Number
               </label>
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="+91 98765 43210"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
-              />
+              <div className="flex gap-2">
+                <select
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value)}
+                  className="w-24 text-xs px-2 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500 bg-slate-50 font-medium text-slate-700 shrink-0"
+                >
+                  <option value="+91">+91 (IN)</option>
+                  <option value="+1">+1 (US)</option>
+                  <option value="+44">+44 (UK)</option>
+                  <option value="+971">+971 (AE)</option>
+                  <option value="+65">+65 (SG)</option>
+                  <option value="+61">+61 (AU)</option>
+                  <option value="+49">+49 (DE)</option>
+                  <option value="+33">+33 (FR)</option>
+                  <option value="+81">+81 (JP)</option>
+                </select>
+                <div className="relative flex-1">
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    value={phone}
+                    onChange={(e) => {
+                      // Restrict input to digits only and maximum 10 digits
+                      const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setPhone(digitsOnly);
+                    }}
+                    placeholder="10-digit number"
+                    className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500 pr-12"
+                  />
+                  {phone.length > 0 && (
+                    <span
+                      className={`absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono ${
+                        phone.length === 10 ? 'text-emerald-600 font-bold' : 'text-slate-400'
+                      }`}
+                    >
+                      {phone.length}/10
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -220,4 +261,3 @@ export const RegisterPage: React.FC = () => {
     </div>
   );
 };
-

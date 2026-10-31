@@ -93,7 +93,7 @@ export class PaymentService {
         payment,
         invoice: updatedInvoice,
       };
-    });
+    }, { maxWait: 10000, timeout: 30000 });
   }
 
   static async listPayments(query: { invoiceId?: string; customerId?: string }) {

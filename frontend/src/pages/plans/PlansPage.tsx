@@ -118,7 +118,7 @@ export const PlansPage: React.FC = () => {
                 <th className="px-6 py-3">Base Price</th>
                 <th className="px-6 py-3">Min Qty</th>
                 <th className="px-6 py-3">Availability</th>
-                <th className="px-6 py-3">Lifecycle Policies (Auto-Close | Early Close | Pause | Renew)</th>
+                <th className="px-6 py-3">Lifecycle Policies</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">

@@ -376,7 +376,7 @@ export class BillingService {
               data: updateSubData,
             });
           },
-          { timeout: 15000 }
+          { maxWait: 10000, timeout: 35000 }
         );
       } catch (err: unknown) {
         failedCount++;
@@ -518,7 +518,7 @@ export class BillingService {
       });
 
       return updated;
-    });
+    }, { maxWait: 10000, timeout: 30000 });
   }
 
   static async cancelInvoice(id: string, actorId: string) {
@@ -560,7 +560,7 @@ export class BillingService {
       });
 
       return updated;
-    });
+    }, { maxWait: 10000, timeout: 30000 });
   }
 
   static async sendInvoice(id: string) {

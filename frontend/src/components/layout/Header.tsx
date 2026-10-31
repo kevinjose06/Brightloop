@@ -1,5 +1,5 @@
 import React from 'react';
-import { LogOut, Bell, Search, ExternalLink } from 'lucide-react';
+import { LogOut, Search } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 
 interface HeaderProps {
@@ -8,7 +8,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ title, onSearch }) => {
-  const { user, logout, isCustomer } = useAuth();
+  const { logout } = useAuth();
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
@@ -29,24 +29,11 @@ export const Header: React.FC<HeaderProps> = ({ title, onSearch }) => {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Swagger Docs Quicklink (Only for Internal Staff/Admin, hidden from Customers) */}
-        {!isCustomer && (
-          <a
-            href="http://localhost:5000/api/docs"
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-2.5 py-1.5 rounded-md transition-colors"
-          >
-            <span>API Docs</span>
-            <ExternalLink className="w-3.5 h-3.5" />
-          </a>
-        )}
-
         {/* User profile dropdown / logout */}
-        <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => logout()}
-            className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 px-2 py-1.5 rounded-md transition-colors"
+            className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-rose-600 hover:bg-rose-50 px-2.5 py-1.5 rounded-md transition-colors"
             title="Sign out of current account"
           >
             <LogOut className="w-4 h-4" />
@@ -57,4 +44,3 @@ export const Header: React.FC<HeaderProps> = ({ title, onSearch }) => {
     </header>
   );
 };
-

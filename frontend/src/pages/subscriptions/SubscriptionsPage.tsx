@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { api, formatCurrency, formatDate } from '../../lib/api.js';
-import { Subscription, Customer, Plan, QuotationTemplate, SubscriptionStatus, PaymentTerms } from '../../types/index.js';
+import { Subscription, Customer, Plan, QuotationTemplate, Product, SubscriptionStatus, PaymentTerms } from '../../types/index.js';
 import { StatusBadge } from '../../components/common/Badge.js';
 import { Modal } from '../../components/common/Modal.js';
-import { Plus, Repeat, Search, Filter, AlertCircle, ArrowRight, PauseCircle } from 'lucide-react';
+import { Plus, Repeat, Search, Filter, AlertCircle, ArrowRight, PauseCircle, Trash2 } from 'lucide-react';
 
 export const SubscriptionsPage: React.FC = () => {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [templates, setTemplates] = useState<QuotationTemplate[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   // Filters
   const [statusFilter, setStatusFilter] = useState<string>('');
@@ -27,6 +28,7 @@ export const SubscriptionsPage: React.FC = () => {
     new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
   );
   const [paymentTerms, setPaymentTerms] = useState<PaymentTerms>('IMMEDIATE');
+  const [lineItems, setLineItems] = useState<Array<{ productId: string; variantId: string; quantity: number }>>([]);
 
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -47,20 +49,25 @@ export const SubscriptionsPage: React.FC = () => {
 
   const fetchDependencies = async () => {
     try {
-      const [custRes, plansRes, tplRes] = await Promise.all([
+      const [custRes, plansRes, tplRes, prodRes] = await Promise.all([
         api.get('/catalog/customers'),
         api.get('/catalog/plans'),
         api.get('/catalog/quotation-templates'),
+        api.get('/catalog/products'),
       ]);
       setCustomers(custRes.data.data);
       setPlans(plansRes.data.data);
       setTemplates(tplRes.data.data);
+      setProducts(prodRes.data.data);
 
       if (custRes.data.data.length > 0 && !selectedCustomerId) {
         setSelectedCustomerId(custRes.data.data[0].id);
       }
       if (plansRes.data.data.length > 0 && !selectedPlanId) {
         setSelectedPlanId(plansRes.data.data[0].id);
+      }
+      if (prodRes.data.data.length > 0 && lineItems.length === 0) {
+        setLineItems([{ productId: prodRes.data.data[0].id, variantId: '', quantity: 1 }]);
       }
     } catch (err) {
       console.error(err);
@@ -77,6 +84,9 @@ export const SubscriptionsPage: React.FC = () => {
 
   const handleOpenCreate = () => {
     setError(null);
+    if (products.length > 0 && lineItems.length === 0) {
+      setLineItems([{ productId: products[0].id, variantId: '', quantity: 1 }]);
+    }
     setIsModalOpen(true);
   };
 
@@ -86,14 +96,30 @@ export const SubscriptionsPage: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await api.post('/subscriptions', {
+      const payload: any = {
         customerId: selectedCustomerId,
         planId: selectedPlanId,
         templateId: selectedTemplateId || null,
         startDate,
         expiryDate,
         paymentTerms,
-      });
+      };
+
+      // If creating blank, supply configured line items
+      if (!selectedTemplateId) {
+        if (lineItems.length === 0) {
+          setError('Please add at least one line item to this subscription');
+          setIsLoading(false);
+          return;
+        }
+        payload.lines = lineItems.map((l) => ({
+          productId: l.productId,
+          variantId: l.variantId || null,
+          quantity: l.quantity,
+        }));
+      }
+
+      await api.post('/subscriptions', payload);
 
       setIsModalOpen(false);
       fetchSubscriptions();
@@ -291,7 +317,7 @@ export const SubscriptionsPage: React.FC = () => {
                 onChange={(e) => setSelectedTemplateId(e.target.value)}
                 className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
               >
-                <option value="">Start Blank</option>
+                <option value="">Start Blank (Manual Lines)</option>
                 {templates.map((t) => (
                   <option key={t.id} value={t.id}>
                     {t.name}
@@ -300,6 +326,117 @@ export const SubscriptionsPage: React.FC = () => {
               </select>
             </div>
           </div>
+
+          {/* Line Items Picker when Start Blank is selected */}
+          {!selectedTemplateId ? (
+            <div className="space-y-3 pt-2 border-t border-slate-100">
+              <div className="flex items-center justify-between">
+                <label className="block text-xs font-semibold text-slate-700">
+                  Subscription Line Items & Products *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (products.length > 0) {
+                      setLineItems([...lineItems, { productId: products[0].id, variantId: '', quantity: 1 }]);
+                    }
+                  }}
+                  className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Line Item</span>
+                </button>
+              </div>
+
+              <div className="space-y-2.5 max-h-52 overflow-y-auto pr-1">
+                {lineItems.map((item, idx) => {
+                  const selectedProduct = products.find((p) => p.id === item.productId);
+                  const variants = selectedProduct?.variants || [];
+
+                  return (
+                    <div key={idx} className="p-3 bg-slate-50 border border-slate-200 rounded-md space-y-2 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[10px] text-slate-500 font-medium mb-0.5">Product</label>
+                          <select
+                            value={item.productId}
+                            onChange={(e) => {
+                              const next = [...lineItems];
+                              next[idx].productId = e.target.value;
+                              next[idx].variantId = '';
+                              setLineItems(next);
+                            }}
+                            className="w-full text-xs px-2.5 py-1.5 bg-white border border-slate-300 rounded focus:ring-1 focus:ring-indigo-500"
+                          >
+                            {products.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} ({formatCurrency(p.salesPrice)})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] text-slate-500 font-medium mb-0.5">Variant (e.g. Brand)</label>
+                          <select
+                            value={item.variantId}
+                            onChange={(e) => {
+                              const next = [...lineItems];
+                              next[idx].variantId = e.target.value;
+                              setLineItems(next);
+                            }}
+                            className="w-full text-xs px-2.5 py-1.5 bg-white border border-slate-300 rounded focus:ring-1 focus:ring-indigo-500"
+                          >
+                            <option value="">Base / Standard (+₹0)</option>
+                            {variants.map((v) => (
+                              <option key={v.id} value={v.id}>
+                                {v.attribute}: {v.value} (+{formatCurrency(v.extraPrice)})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/60">
+                        <div className="flex items-center gap-2">
+                          <label className="text-[10px] text-slate-500 font-medium">Quantity:</label>
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.quantity}
+                            onChange={(e) => {
+                              const next = [...lineItems];
+                              next[idx].quantity = Math.max(1, parseInt(e.target.value) || 1);
+                              setLineItems(next);
+                            }}
+                            className="w-16 text-xs px-2 py-1 bg-white border border-slate-300 rounded text-center font-medium"
+                          />
+                        </div>
+
+                        {lineItems.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => setLineItems(lineItems.filter((_, i) => i !== idx))}
+                            className="text-[11px] text-rose-600 hover:text-rose-700 flex items-center gap-1 font-medium"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>Remove</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="p-3 bg-indigo-50/60 border border-indigo-100 rounded-md text-xs text-indigo-700 flex items-center gap-2">
+              <Repeat className="w-4 h-4 shrink-0" />
+              <span>
+                Pre-configured products and quantities from <strong>{templates.find((t) => t.id === selectedTemplateId)?.name}</strong> will be cloned into this contract.
+              </span>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div>
@@ -365,4 +502,3 @@ export const SubscriptionsPage: React.FC = () => {
     </div>
   );
 };
-
