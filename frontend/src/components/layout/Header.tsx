@@ -11,7 +11,7 @@ export const Header: React.FC<HeaderProps> = ({ title, onSearch }) => {
   const { logout } = useAuth();
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
+    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0 no-print print:hidden">
       <div className="flex items-center gap-4 flex-1">
         {title && <h1 className="text-lg font-bold text-slate-800 tracking-tight">{title}</h1>}
 

@@ -37,12 +37,12 @@ export const AppLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 font-sans print:h-auto print:w-auto print:overflow-visible print:bg-white">
       <Sidebar onOpenBillingModal={() => setIsBillingModalOpen(true)} />
 
-      <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
+      <div className="flex flex-col flex-1 min-w-0 overflow-hidden print:overflow-visible print:w-full">
         <Header />
-        <main className="flex-1 overflow-y-auto p-6 md:p-8">
+        <main className="flex-1 overflow-y-auto p-6 md:p-8 print:p-0 print:m-0 print:overflow-visible">
           <Outlet />
         </main>
       </div>

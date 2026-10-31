@@ -1,30 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { api, formatCurrency, formatDate } from '../../lib/api.js';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { api } from '../../lib/api.js';
+import { formatPaise, rupeesToPaise } from '../../lib/money.js';
+import { formatDate } from '../../lib/date.js';
 import { Invoice, PaymentMethod } from '../../types/index.js';
-import { StatusBadge } from '../../components/common/Badge.js';
+import { InvoiceSheet } from '../../components/invoices/InvoiceSheet.js';
 import { Modal } from '../../components/common/Modal.js';
+import { useAuth } from '../../context/AuthContext.js';
 import {
   ArrowLeft,
   Printer,
   Mail,
-  CheckCircle,
-  XCircle,
   CreditCard,
+  XCircle,
   AlertCircle,
   CheckCircle2,
-  Calendar,
-  Building,
+  Loader2,
 } from 'lucide-react';
 
 export const InvoiceDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { isCustomer } = useAuth();
+
   const [invoice, setInvoice] = useState<Invoice | null>(null);
 
   // Record Payment Modal
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BANK_TRANSFER');
-  const [paymentAmount, setPaymentAmount] = useState<number>(0);
+  const [paymentRupees, setPaymentRupees] = useState<string>('');
   const [paymentNote, setPaymentNote] = useState('');
 
   const [error, setError] = useState<string | null>(null);
@@ -34,21 +38,37 @@ export const InvoiceDetailPage: React.FC = () => {
 
   const fetchInvoice = async () => {
     setIsLoading(true);
+    setError(null);
     try {
-      const res = await api.get(`/invoices/${id}`);
-      setInvoice(res.data.data);
-      const remainingBalance = Math.max(0, res.data.data.total - res.data.data.amountPaid);
-      setPaymentAmount(remainingBalance / 100);
+      // If customer, fetch from portal route; otherwise staff/admin route
+      const endpoint = isCustomer ? `/portal/invoices/${id}` : `/invoices/${id}`;
+      const res = await api.get(endpoint);
+      const data: Invoice = res.data?.data;
+      setInvoice(data);
+      if (data) {
+        const remaining = Math.max(0, data.total - data.amountPaid);
+        setPaymentRupees((remaining / 100).toFixed(2));
+      }
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to fetch invoice');
+      setError(
+        err.response?.data?.message ||
+        err.response?.data?.error?.message ||
+        'Invoice not found or access denied.'
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchInvoice();
-  }, [id]);
+    if (id) {
+      fetchInvoice();
+    }
+  }, [id, isCustomer]);
+
+  const handlePrint = () => {
+    window.print();
+  };
 
   const handleConfirmInvoice = async () => {
     setError(null);
@@ -56,25 +76,26 @@ export const InvoiceDetailPage: React.FC = () => {
     setIsProcessing(true);
     try {
       const res = await api.post(`/invoices/${id}/confirm`);
-      setInvoice(res.data.data);
-      setSuccessMsg('Invoice confirmed and ready for payment collection');
+      setInvoice(res.data?.data);
+      setSuccessMsg('Invoice confirmed and ready for payment collection.');
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Confirmation failed');
+      setError(err.response?.data?.message || err.response?.data?.error?.message || 'Confirmation failed.');
     } finally {
       setIsProcessing(false);
     }
   };
 
   const handleCancelInvoice = async () => {
+    if (!window.confirm('Are you sure you want to cancel this invoice? This cannot be undone.')) return;
     setError(null);
     setSuccessMsg(null);
     setIsProcessing(true);
     try {
       const res = await api.post(`/invoices/${id}/cancel`);
-      setInvoice(res.data.data);
-      setSuccessMsg('Invoice cancelled');
+      setInvoice(res.data?.data);
+      setSuccessMsg('Invoice has been cancelled.');
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Cancellation failed');
+      setError(err.response?.data?.message || err.response?.data?.error?.message || 'Cancellation failed.');
     } finally {
       setIsProcessing(false);
     }
@@ -86,10 +107,10 @@ export const InvoiceDetailPage: React.FC = () => {
     setIsProcessing(true);
     try {
       await api.post(`/invoices/${id}/send`);
-      setSuccessMsg(`Invoice dispatched to ${invoice?.customer?.email}`);
+      setSuccessMsg(`Invoice dispatched to ${invoice?.customer?.email}.`);
       fetchInvoice();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to send invoice');
+      setError(err.response?.data?.message || err.response?.data?.error?.message || 'Failed to send invoice.');
     } finally {
       setIsProcessing(false);
     }
@@ -99,11 +120,16 @@ export const InvoiceDetailPage: React.FC = () => {
     e.preventDefault();
     if (!invoice) return;
 
-    const remaining = invoice.total - invoice.amountPaid;
-    const amountInPaise = Math.round(paymentAmount * 100);
+    const remainingBalance = Math.max(0, invoice.total - invoice.amountPaid);
+    const amountInPaise = rupeesToPaise(paymentRupees);
 
-    if (amountInPaise > remaining) {
-      setError(`Cannot accept overpayment! Max balance remaining is ${formatCurrency(remaining)}`);
+    if (amountInPaise <= 0) {
+      setError('Payment amount must be greater than zero.');
+      return;
+    }
+
+    if (amountInPaise > remainingBalance) {
+      setError(`Overpayment rejected! Maximum balance remaining is ${formatPaise(remainingBalance)}.`);
       return;
     }
 
@@ -117,25 +143,39 @@ export const InvoiceDetailPage: React.FC = () => {
       });
 
       setIsPaymentModalOpen(false);
-      setSuccessMsg('Payment successfully verified and recorded!');
+      setSuccessMsg('Payment successfully recorded and verified.');
       fetchInvoice();
     } catch (err: any) {
-      setError(err.response?.data?.error?.message || 'Failed to record payment');
+      setError(err.response?.data?.message || err.response?.data?.error?.message || 'Failed to record payment.');
     } finally {
       setIsProcessing(false);
     }
   };
 
   if (isLoading) {
-    return <div className="p-8 text-center text-xs text-slate-500">Loading invoice details...</div>;
+    return (
+      <div className="p-12 text-center text-xs text-slate-500 flex flex-col items-center justify-center gap-3">
+        <Loader2 className="w-5 h-5 animate-spin text-indigo-700" />
+        <span>Loading invoice details...</span>
+      </div>
+    );
   }
+
+  const backLink = isCustomer ? '/portal' : '/invoices';
+  const backLabel = isCustomer ? 'Back to Portal' : 'Back to Invoices';
 
   if (!invoice) {
     return (
-      <div className="p-8 text-center">
-        <p className="text-slate-600 text-sm mb-4">Invoice record not found.</p>
-        <Link to="/invoices" className="text-indigo-600 text-xs font-semibold">
-          ← Back to invoices
+      <div className="max-w-md mx-auto p-8 text-center bg-white border border-slate-200 rounded-lg shadow-sm my-12">
+        <AlertCircle className="w-8 h-8 text-rose-600 mx-auto mb-3" />
+        <h2 className="text-base font-semibold text-slate-900 mb-1">Invoice Not Found</h2>
+        <p className="text-xs text-slate-500 mb-4">{error || 'This invoice does not exist or you do not have permission to view it.'}</p>
+        <Link
+          to={backLink}
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-white bg-indigo-700 rounded-lg hover:bg-indigo-800 transition-colors"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>{backLabel}</span>
         </Link>
       </div>
     );
@@ -144,254 +184,122 @@ export const InvoiceDetailPage: React.FC = () => {
   const balanceDue = Math.max(0, invoice.total - invoice.amountPaid);
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
-      <div>
-        <Link
-          to="/invoices"
-          className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 font-medium mb-3"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to Invoices</span>
-        </Link>
-
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                {invoice.number}
-              </h1>
-              <StatusBadge status={invoice.status} />
-            </div>
-            <p className="text-xs text-slate-500 mt-1">
-              Contract Ref:{' '}
-              <Link
-                to={`/subscriptions/${invoice.subscriptionId}`}
-                className="text-indigo-600 hover:underline font-semibold"
-              >
-                {invoice.subscription?.number}
-              </Link>
-            </p>
+    <div className="space-y-6 max-w-5xl mx-auto print:max-w-none print:m-0 print:p-0">
+      {/* Screen-Only Action Header (PRD Section 8.2) */}
+      <div className="no-print print:hidden flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        <div>
+          <Link
+            to={backLink}
+            className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-700 font-medium transition-colors mb-2"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>{backLabel}</span>
+          </Link>
+          <div className="flex items-center gap-3">
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">
+              Invoice {invoice.number}
+            </h1>
+            <span className="text-xs text-slate-500">
+              Ref: <strong className="text-slate-800">{invoice.subscription?.number || invoice.subscriptionId}</strong>
+            </span>
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-2">
-            <a
-              href={`/api/v1/invoices/${invoice.id}/print`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-xs"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Print / PDF View</span>
-            </a>
+        {/* Action Controls */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Print Button (Available to all roles) */}
+          <button
+            type="button"
+            onClick={handlePrint}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 transition-colors"
+          >
+            <Printer className="w-3.5 h-3.5 text-slate-600" />
+            <span>Print / PDF View</span>
+          </button>
 
-            {invoice.status === 'DRAFT' && (
-              <button
-                disabled={isProcessing}
-                onClick={handleConfirmInvoice}
-                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-sm"
-              >
-                Confirm Invoice
-              </button>
-            )}
-
-            {invoice.status === 'CONFIRMED' && (
-              <>
+          {/* Staff/Admin Exclusive Actions */}
+          {!isCustomer && (
+            <>
+              {invoice.status === 'DRAFT' && (
                 <button
+                  type="button"
                   disabled={isProcessing}
-                  onClick={handleSendInvoice}
-                  className="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg"
+                  onClick={handleConfirmInvoice}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50 transition-colors"
                 >
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>Send by Email</span>
+                  {isProcessing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>Confirm Invoice</span>
                 </button>
+              )}
 
+              {invoice.status === 'CONFIRMED' && (
+                <>
+                  <button
+                    type="button"
+                    disabled={isProcessing}
+                    onClick={handleSendInvoice}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg shadow-sm transition-colors"
+                  >
+                    <Mail className="w-3.5 h-3.5 text-slate-500" />
+                    <span>Send by Email</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={isProcessing || balanceDue === 0}
+                    onClick={() => {
+                      setError(null);
+                      setSuccessMsg(null);
+                      setPaymentRupees((balanceDue / 100).toFixed(2));
+                      setIsPaymentModalOpen(true);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-700 hover:bg-indigo-800 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50 transition-colors"
+                  >
+                    <CreditCard className="w-3.5 h-3.5" />
+                    <span>Record Payment</span>
+                  </button>
+                </>
+              )}
+
+              {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && invoice.amountPaid === 0 && (
                 <button
-                  disabled={isProcessing || balanceDue === 0}
-                  onClick={() => setIsPaymentModalOpen(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-sm"
+                  type="button"
+                  disabled={isProcessing}
+                  onClick={handleCancelInvoice}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold rounded-lg transition-colors"
                 >
-                  <CreditCard className="w-3.5 h-3.5" />
-                  <span>Record Payment</span>
+                  <XCircle className="w-3.5 h-3.5 text-rose-500" />
+                  <span>Cancel Invoice</span>
                 </button>
-              </>
-            )}
-
-            {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && invoice.amountPaid === 0 && (
-              <button
-                disabled={isProcessing}
-                onClick={handleCancelInvoice}
-                className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold rounded-lg"
-              >
-                Cancel Invoice
-              </button>
-            )}
-          </div>
+              )}
+            </>
+          )}
         </div>
       </div>
 
-      {/* Notifications */}
+      {/* Screen Notifications */}
       {error && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded-md text-xs text-rose-700 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>{error}</span>
+        <div className="no-print print:hidden p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
+          </div>
+          <button type="button" onClick={() => setError(null)} className="font-bold text-slate-500 hover:text-slate-800">&times;</button>
         </div>
       )}
 
       {successMsg && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-md text-xs text-emerald-800 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
-          <span>{successMsg}</span>
+        <div className="no-print print:hidden p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-xs text-emerald-800 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+            <span>{successMsg}</span>
+          </div>
+          <button type="button" onClick={() => setSuccessMsg(null)} className="font-bold text-slate-500 hover:text-slate-800">&times;</button>
         </div>
       )}
 
-      {/* Invoice Details Card */}
-      <div className="bg-white rounded-card border border-slate-200/80 shadow-soft p-6 sm:p-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pb-6 border-b border-slate-200">
-          <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-              Billed To
-            </span>
-            <p className="font-bold text-slate-900 text-base">{invoice.customer?.name}</p>
-            {invoice.customer?.company && (
-              <p className="text-xs text-slate-600">{invoice.customer?.company}</p>
-            )}
-            <p className="text-xs text-slate-500">{invoice.customer?.email}</p>
-            {invoice.customer?.address && (
-              <p className="text-xs text-slate-500">{invoice.customer?.address}</p>
-            )}
-            {invoice.customer?.taxId && (
-              <p className="text-xs text-slate-500 mt-1">GST/Tax: {invoice.customer?.taxId}</p>
-            )}
-          </div>
-
-          <div className="sm:text-right space-y-1 text-xs">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 block mb-1">
-              Billing Period
-            </span>
-            <p className="font-semibold text-slate-800">
-              {formatDate(invoice.periodStart)} – {formatDate(invoice.periodEnd)}
-            </p>
-            <p className="text-slate-500">
-              Issue Date: <span className="font-medium text-slate-700">{formatDate(invoice.issueDate)}</span>
-            </p>
-            <p className="text-slate-500">
-              Due Date: <span className="font-medium text-slate-700">{formatDate(invoice.dueDate)}</span>
-            </p>
-            {invoice.sentAt && (
-              <p className="text-indigo-600 text-[11px]">
-                Dispatched via Email: {formatDate(invoice.sentAt)}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Invoice Lines Snapshot */}
-        <div className="mt-6">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 uppercase font-semibold text-slate-500">
-              <tr>
-                <th className="py-2.5 px-3">Description</th>
-                <th className="py-2.5 px-3 text-center">Qty</th>
-                <th className="py-2.5 px-3 text-right">Unit Price</th>
-                <th className="py-2.5 px-3 text-right">Discount</th>
-                <th className="py-2.5 px-3 text-right">Tax</th>
-                <th className="py-2.5 px-3 text-right">Total</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {invoice.lines?.map((line) => (
-                <tr key={line.id} className="hover:bg-slate-50/40">
-                  <td className="py-3 px-3 font-semibold text-slate-800">{line.description}</td>
-                  <td className="py-3 px-3 text-center font-medium">{line.quantity}</td>
-                  <td className="py-3 px-3 text-right text-slate-600">{formatCurrency(line.unitPrice)}</td>
-                  <td className="py-3 px-3 text-right text-emerald-600">
-                    {line.discountAmount > 0 ? `-${formatCurrency(line.discountAmount)}` : '—'}
-                  </td>
-                  <td className="py-3 px-3 text-right text-slate-600">
-                    {line.taxName ? `${line.taxName} (${line.taxRate}%): ${formatCurrency(line.taxAmount)}` : '—'}
-                  </td>
-                  <td className="py-3 px-3 text-right font-bold text-slate-900">
-                    {formatCurrency(line.amount - line.discountAmount + line.taxAmount)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Totals Breakdown */}
-        <div className="mt-6 pt-4 border-t border-slate-200 flex justify-end">
-          <div className="w-72 space-y-2 text-xs">
-            <div className="flex justify-between text-slate-600">
-              <span>Subtotal:</span>
-              <span className="font-medium text-slate-900">{formatCurrency(invoice.subtotal)}</span>
-            </div>
-            <div className="flex justify-between text-emerald-600">
-              <span>Discounts Applied:</span>
-              <span className="font-medium">-{formatCurrency(invoice.discountTotal)}</span>
-            </div>
-            <div className="flex justify-between text-slate-600">
-              <span>Taxes:</span>
-              <span className="font-medium text-slate-900">+{formatCurrency(invoice.taxTotal)}</span>
-            </div>
-            <div className="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-200">
-              <span>Invoice Total:</span>
-              <span>{formatCurrency(invoice.total)}</span>
-            </div>
-            <div className="flex justify-between text-slate-500">
-              <span>Total Paid:</span>
-              <span>{formatCurrency(invoice.amountPaid)}</span>
-            </div>
-            <div
-              className={`flex justify-between font-bold pt-2 border-t border-slate-100 ${
-                balanceDue > 0 ? 'text-amber-600' : 'text-emerald-600'
-              }`}
-            >
-              <span>Balance Remaining:</span>
-              <span>{formatCurrency(balanceDue)}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Verified Payments Ledger (PRD §8.5) */}
-      <div className="bg-white rounded-card border border-slate-200/80 shadow-soft overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
-          <h3 className="font-bold text-slate-900 text-sm">Verified Payments Ledger</h3>
-          <span className="text-xs text-slate-500">{invoice.payments?.length || 0} Transactions</span>
-        </div>
-
-        {invoice.payments && invoice.payments.length > 0 ? (
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 uppercase font-semibold text-slate-500">
-              <tr>
-                <th className="px-6 py-3">Paid Date</th>
-                <th className="px-6 py-3">Method</th>
-                <th className="px-6 py-3">Reference / Note</th>
-                <th className="px-6 py-3">Recorded By</th>
-                <th className="px-6 py-3 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {invoice.payments.map((p) => (
-                <tr key={p.id}>
-                  <td className="px-6 py-3.5 font-medium text-slate-800">{formatDate(p.paidAt)}</td>
-                  <td className="px-6 py-3.5 font-semibold text-indigo-700">{p.method}</td>
-                  <td className="px-6 py-3.5 text-slate-600">{p.note || '—'}</td>
-                  <td className="px-6 py-3.5 text-slate-500">{p.recordedBy?.email}</td>
-                  <td className="px-6 py-3.5 text-right font-bold text-emerald-600">
-                    {formatCurrency(p.amount)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="p-8 text-center text-xs text-slate-400">
-            No payments recorded yet for this invoice.
-          </div>
-        )}
-      </div>
+      {/* The Printable Invoice Sheet */}
+      <InvoiceSheet invoice={invoice} />
 
       {/* Record Payment Modal */}
       <Modal
@@ -400,18 +308,18 @@ export const InvoiceDetailPage: React.FC = () => {
         title="Record Customer Payment"
       >
         <form onSubmit={handleRecordPayment} className="space-y-4">
-          <div className="p-3 bg-slate-50 border border-slate-200 rounded-md text-xs space-y-1">
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs space-y-1.5">
             <div className="flex justify-between">
               <span className="text-slate-500">Invoice Total:</span>
-              <span className="font-bold text-slate-900">{formatCurrency(invoice.total)}</span>
+              <span className="font-semibold text-slate-900">{formatPaise(invoice.total)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Already Paid:</span>
-              <span className="font-bold text-emerald-600">{formatCurrency(invoice.amountPaid)}</span>
+              <span className="text-slate-500">Amount Paid:</span>
+              <span className="font-semibold text-emerald-700">{formatPaise(invoice.amountPaid)}</span>
             </div>
-            <div className="flex justify-between border-t border-slate-200 pt-1">
-              <span className="font-semibold text-slate-700">Max Acceptable Payment:</span>
-              <span className="font-bold text-amber-600">{formatCurrency(balanceDue)}</span>
+            <div className="flex justify-between border-t border-slate-200 pt-1.5 font-bold">
+              <span className="text-slate-700">Remaining Balance:</span>
+              <span className="text-amber-700">{formatPaise(balanceDue)}</span>
             </div>
           </div>
 
@@ -422,19 +330,19 @@ export const InvoiceDetailPage: React.FC = () => {
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 bg-white"
             >
-              <option value="BANK_TRANSFER">BANK TRANSFER (NEFT / RTGS / Wire)</option>
-              <option value="UPI">UPI (Google Pay / PhonePe / QR)</option>
-              <option value="CARD">CREDIT / DEBIT CARD</option>
-              <option value="CHEQUE">CHEQUE</option>
-              <option value="CASH">CASH</option>
+              <option value="BANK_TRANSFER">Bank Transfer (NEFT / RTGS / IMPS)</option>
+              <option value="UPI">UPI (Google Pay / PhonePe / Paytm)</option>
+              <option value="CARD">Credit / Debit Card</option>
+              <option value="CHEQUE">Cheque</option>
+              <option value="CASH">Cash</option>
             </select>
           </div>
 
           <div>
             <label className="block text-xs font-semibold text-slate-700 mb-1">
-              Amount (₹) *
+              Payment Amount (₹) *
             </label>
             <input
               type="number"
@@ -442,12 +350,12 @@ export const InvoiceDetailPage: React.FC = () => {
               min="0.01"
               max={balanceDue / 100}
               required
-              value={paymentAmount}
-              onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              value={paymentRupees}
+              onChange={(e) => setPaymentRupees(e.target.value)}
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 bg-white"
             />
-            <p className="text-[11px] text-slate-400 mt-1">
-              Partial payments allowed. Entering remaining balance automatically marks invoice as Paid.
+            <p className="text-[11px] text-slate-500 mt-1">
+              Partial payments allowed. Entering the full balance marks invoice as Paid.
             </p>
           </div>
 
@@ -459,25 +367,27 @@ export const InvoiceDetailPage: React.FC = () => {
               type="text"
               value={paymentNote}
               onChange={(e) => setPaymentNote(e.target.value)}
-              placeholder="e.g. Wire Ref #HDFC98234 or UPI ID"
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              placeholder="e.g. UTR #HDFC0029348 or Cheque #019283"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 bg-white"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-slate-100">
+          <div className="flex justify-end gap-2 pt-4 border-t border-slate-200">
             <button
               type="button"
+              disabled={isProcessing}
               onClick={() => setIsPaymentModalOpen(false)}
-              className="px-3 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md"
+              className="px-3 py-2 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isProcessing || paymentAmount <= 0}
-              className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md shadow-sm disabled:opacity-50"
+              disabled={isProcessing || rupeesToPaise(paymentRupees) <= 0}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-700 hover:bg-indigo-800 rounded-lg shadow-sm disabled:opacity-50 transition-colors"
             >
-              {isProcessing ? 'Verifying...' : 'Record Payment'}
+              {isProcessing && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              <span>Record Payment</span>
             </button>
           </div>
         </form>
@@ -485,4 +395,3 @@ export const InvoiceDetailPage: React.FC = () => {
     </div>
   );
 };
-

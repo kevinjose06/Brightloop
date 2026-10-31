@@ -47,7 +47,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ onOpenBillingModal }) => {
   const navItems = isCustomer ? customerNav : adminNav;
 
   return (
-    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 min-h-screen border-r border-slate-800">
+    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col shrink-0 min-h-screen border-r border-slate-800 no-print print:hidden">
       {/* Brand Header */}
       <div className="h-16 flex items-center px-6 gap-3 border-b border-slate-800 bg-slate-950/40">
         <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">

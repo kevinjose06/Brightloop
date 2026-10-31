@@ -23,3 +23,68 @@
   animation: fadeIn 0.15s ease-out forwards;
 }
 
+/* ==============================================================================
+ * A4 INVOICE PRINT STYLES (PRD & Section 8.3)
+ * ============================================================================== */
+@media print {
+  @page {
+    size: A4;
+    margin: 16mm;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide application chrome and interactive screen buttons */
+  aside,
+  nav,
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Let the sheet use the full print page */
+  main {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+  .invoice-sheet {
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    display: table-header-group; /* repeats table header on subsequent pages */
+  }
+
+  tr,
+  td,
+  th {
+    page-break-inside: avoid;
+  }
+
+  /* Preserve colors in print */
+  .print-color {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
