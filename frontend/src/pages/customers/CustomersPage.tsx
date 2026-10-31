@@ -2,8 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { api, formatCurrency } from '../../lib/api.js';
 import { Customer } from '../../types/index.js';
 import { Modal } from '../../components/common/Modal.js';
-import { Plus, Users, Search, Building, Mail, Phone } from 'lucide-react';
+import { Plus, Users, Search, Building, Mail, Phone, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
+
+const exportCSV = (rows: string[][], filename: string) => {
+  const csv = rows
+    .map((r) => r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 export const CustomersPage: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -60,9 +73,40 @@ export const CustomersPage: React.FC = () => {
     }
   };
 
+  const handleExportCSV = () => {
+    const header = [
+      'Name',
+      'Company',
+      'Email',
+      'Phone',
+      'Address',
+      'GST / Tax ID',
+      'Active Subscriptions',
+      'Outstanding Balance (INR)',
+    ];
+    const rows = customers.map((c) => {
+      const activeSubs = c.subscriptions?.filter((s) => s.status === 'ACTIVE').length ?? 0;
+      const outstanding =
+        c.invoices
+          ?.filter((i) => i.status === 'CONFIRMED')
+          .reduce((sum, i) => sum + (i.total - i.amountPaid), 0) ?? 0;
+      return [
+        c.name,
+        c.company ?? '',
+        c.email,
+        c.phone ?? '',
+        c.address ?? '',
+        c.taxId ?? '',
+        String(activeSubs),
+        (outstanding / 100).toFixed(2),
+      ];
+    });
+    exportCSV([header, ...rows], `brightloop-customers-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Stitch Context Banner */}
+      {/* Context Banner */}
       <div className="bg-white rounded-card border border-slate-200/90 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -79,13 +123,22 @@ export const CustomersPage: React.FC = () => {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
-        >
-          <Plus className="w-4 h-4" />
-          <span>New Customer</span>
-        </button>
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-[#3730A3] text-[#3730A3] hover:bg-[#3730A3] hover:text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Export CSV</span>
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>New Customer</span>
+          </button>
+        </div>
       </div>
 
       <div className="bg-white p-3.5 rounded-card border border-slate-200/90 shadow-sm flex items-center gap-3 text-xs">

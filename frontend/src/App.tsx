@@ -19,6 +19,7 @@ import { TemplatesPage } from './pages/templates/TemplatesPage.js';
 import { CustomersPage } from './pages/customers/CustomersPage.js';
 import { StaffPage } from './pages/staff/StaffPage.js';
 import { PortalDashboardPage } from './pages/portal/PortalDashboardPage.js';
+import { PortalSettingsPage } from './pages/portal/PortalSettingsPage.js';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode; adminOnly?: boolean }> = ({
   children,
@@ -94,6 +95,7 @@ export const App: React.FC = () => {
             {/* Customer Portal */}
             <Route path="portal" element={<PortalDashboardPage />} />
             <Route path="portal/invoices" element={<PortalDashboardPage />} />
+            <Route path="portal/settings" element={<PortalSettingsPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -102,4 +104,3 @@ export const App: React.FC = () => {
     </BrowserRouter>
   );
 };
-

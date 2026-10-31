@@ -3,7 +3,20 @@ import { Link } from 'react-router-dom';
 import { api, formatCurrency, formatDate } from '../../lib/api.js';
 import { Invoice, InvoiceStatus, Customer } from '../../types/index.js';
 import { StatusBadge } from '../../components/common/Badge.js';
-import { Search, Filter, Printer, ArrowRight, AlertTriangle, Receipt, CreditCard, Clock, CheckCircle2 } from 'lucide-react';
+import { Search, Filter, Printer, ArrowRight, AlertTriangle, Receipt, CreditCard, Clock, CheckCircle2, Download } from 'lucide-react';
+
+const exportCSV = (rows: string[][], filename: string) => {
+  const csv = rows
+    .map((r) => r.map((c) => `"${String(c ?? '').replace(/"/g, '""')}"`).join(','))
+    .join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 export const InvoicesPage: React.FC = () => {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -50,15 +63,49 @@ export const InvoicesPage: React.FC = () => {
     (inv) => inv.status === 'CONFIRMED' && inv.total - inv.amountPaid > 0 && new Date(inv.dueDate) < new Date()
   );
 
+  const handleExportCSV = () => {
+    const header = [
+      'Invoice #',
+      'Customer',
+      'Subscription',
+      'Period Start',
+      'Period End',
+      'Due Date',
+      'Status',
+      'Subtotal (INR)',
+      'Discount (INR)',
+      'Tax (INR)',
+      'Total (INR)',
+      'Amount Paid (INR)',
+      'Balance Due (INR)',
+    ];
+    const rows = invoices.map((inv) => [
+      inv.number,
+      inv.customer?.name ?? '',
+      inv.subscription?.number ?? '',
+      formatDate(inv.periodStart),
+      formatDate(inv.periodEnd),
+      formatDate(inv.dueDate),
+      inv.status,
+      (inv.subtotal / 100).toFixed(2),
+      (inv.discountTotal / 100).toFixed(2),
+      (inv.taxTotal / 100).toFixed(2),
+      (inv.total / 100).toFixed(2),
+      (inv.amountPaid / 100).toFixed(2),
+      (Math.max(0, inv.total - inv.amountPaid) / 100).toFixed(2),
+    ]);
+    exportCSV([header, ...rows], `brightloop-invoices-${new Date().toISOString().slice(0, 10)}.csv`);
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto font-sans">
-      {/* Context Banner matching Stitch AI */}
+      {/* Context Banner */}
       <div className="relative w-full rounded-xl bg-white p-6 shadow-sm border border-[#E2E8F0] overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2.5">
               <span className="text-2xl font-semibold text-[#131B2E] tracking-tight">
-                Invoices & Statements
+                Invoices &amp; Statements
               </span>
               <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
                 {invoices.length} Generated Invoices
@@ -68,6 +115,13 @@ export const InvoicesPage: React.FC = () => {
               Audit recurring cycles, track outstanding balances, confirm proposals, and record customer payments across all corporate accounts.
             </p>
           </div>
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-white border border-[#3730A3] text-[#3730A3] hover:bg-[#3730A3] hover:text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer shrink-0"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Export CSV</span>
+          </button>
         </div>
       </div>
 

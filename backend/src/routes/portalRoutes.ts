@@ -1,6 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { SubscriptionService } from '../services/subscriptionService.js';
 import { BillingService } from '../services/billingService.js';
+import { CatalogService } from '../services/catalogService.js';
 import { requireAuth } from '../middleware/auth.js';
 import { AppError } from '../lib/errors.js';
 import { SubscriptionStatus } from '@prisma/client';
@@ -110,5 +111,26 @@ router.get('/invoices/:id', async (req: Request, res: Response, next: NextFuncti
   }
 });
 
-export const portalRoutes = router;
+// Customer self-service profile update
+router.get('/profile', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const customerId = req.user!.customerId!;
+    const customer = await CatalogService.getCustomer(customerId);
+    res.json({ data: customer });
+  } catch (err) {
+    next(err);
+  }
+});
 
+router.patch('/profile', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const customerId = req.user!.customerId!;
+    const { phone, address, taxId } = req.body;
+    const customer = await CatalogService.updateCustomer(customerId, { phone, address, taxId });
+    res.json({ data: customer });
+  } catch (err) {
+    next(err);
+  }
+});
+
+export const portalRoutes = router;
