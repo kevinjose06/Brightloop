@@ -1,0 +1,35 @@
+# PRD and sensitive documents
+Brightloop Subscription Management System PRD and Build Plan.md
+*PRD*
+*prd*
+*.PRD.md
+*.prd.md
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+dist/
+build/
+.output/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.log
+
+# Editor & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
