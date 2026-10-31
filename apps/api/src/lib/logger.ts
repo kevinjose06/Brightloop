@@ -5,9 +5,13 @@ export const logger = pino({
   transport:
     process.env.NODE_ENV !== 'production'
       ? {
-          target: 'pino/file',
-          options: { destination: 1 }, // stdout
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'SYS:HH:MM:ss',
+            ignore: 'pid,hostname',
+            singleLine: false,
+          },
         }
       : undefined,
 });
-

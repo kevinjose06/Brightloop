@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../lib/errors.js';
+import { logger } from '../lib/logger.js';
 import { SubscriptionStatus, PaymentTerms, Prisma, BillingPeriod } from '@prisma/client';
 import { addDays, addWeeks, addMonths, addYears } from 'date-fns';
 
@@ -227,6 +228,8 @@ export class SubscriptionService {
         },
       });
 
+      logger.info(`📄 [SUBSCRIPTION] Created ${subscription.number} for ${subscription.customer.name} (Plan: ${subscription.plan.name})`);
+
       return subscription;
     });
   }
@@ -310,6 +313,8 @@ export class SubscriptionService {
           meta: { from: current, to: targetState },
         },
       });
+
+      logger.info(`🔄 [SUBSCRIPTION] ${sub.number} transitioned: ${current} ➔ ${targetState}`);
 
       return updated;
     });

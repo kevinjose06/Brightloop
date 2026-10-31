@@ -13,16 +13,7 @@ export function errorHandler(
   const requestId = req.requestId || (req.headers['x-request-id'] as string) || crypto.randomUUID();
 
   if (err instanceof AppError) {
-    logger.warn(
-      {
-        requestId,
-        code: err.code,
-        status: err.status,
-        message: err.message,
-        details: err.details,
-      },
-      'Application warning/error handled'
-    );
+    logger.warn(`⚠️  [${err.code}] ${err.status} - ${err.message} (${req.method} ${req.originalUrl})`);
 
     return res.status(err.status).json({
       error: {
@@ -40,7 +31,8 @@ export function errorHandler(
       issue: e.message,
     }));
 
-    logger.warn({ requestId, details }, 'Validation error handled');
+    const summary = details.map((d) => `${d.field}: ${d.issue}`).join(' | ');
+    logger.warn(`⚠️  [VALIDATION_ERROR] 400 - ${summary} (${req.method} ${req.originalUrl})`);
 
     return res.status(400).json({
       error: {

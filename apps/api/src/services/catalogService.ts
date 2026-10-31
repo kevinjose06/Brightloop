@@ -71,12 +71,21 @@ export class CatalogService {
 
   static async updateProduct(
     id: string,
-    data: Prisma.ProductUpdateInput
+    data: {
+      name?: string;
+      type?: ProductType;
+      salesPrice?: number;
+      costPrice?: number;
+      notes?: string;
+      isActive?: boolean;
+      variants?: Array<{ attribute: string; value: string; extraPrice: number }>;
+    }
   ) {
     await this.getProduct(id);
+    const { variants, ...productData } = data;
     return prisma.product.update({
       where: { id },
-      data,
+      data: productData,
       include: { variants: true },
     });
   }

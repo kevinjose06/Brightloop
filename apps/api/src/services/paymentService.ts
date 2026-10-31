@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma.js';
 import { AppError } from '../lib/errors.js';
+import { logger } from '../lib/logger.js';
 import { InvoiceStatus, PaymentMethod } from '@prisma/client';
 
 export class PaymentService {
@@ -83,6 +84,10 @@ export class PaymentService {
           },
         },
       });
+
+      logger.info(
+        `💰 [PAYMENT] ₹${(data.amount / 100).toFixed(2)} recorded for ${invoice.number} via ${data.method} ➔ Status: ${nextStatus}`
+      );
 
       return {
         payment,

@@ -100,6 +100,7 @@ export class BillingService {
     });
 
     const evaluatedCount = dueSubscriptions.length;
+    logger.info(`⚡ [BILLING] Executing cycle: ${evaluatedCount} due subscription(s) found (Target date: ${targetDate.toISOString().slice(0, 10)})`);
 
     for (const sub of dueSubscriptions) {
       try {
@@ -398,6 +399,8 @@ export class BillingService {
         details: { errors },
       },
     });
+
+    logger.info(`✅ [BILLING] Cycle complete: ${createdCount} created, ${skippedCount} skipped (idempotent), ${failedCount} failed`);
 
     return {
       runId: run.id,

@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import { prisma } from './lib/prisma.js';
+import { logger } from './lib/logger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authRoutes } from './routes/authRoutes.js';
 import { catalogRoutes } from './routes/catalogRoutes.js';
@@ -38,10 +39,37 @@ app.use((req, res, next) => {
   req.requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
   res.setHeader('X-Request-Id', req.requestId);
 
+  const originalWriteHead = res.writeHead;
+  res.writeHead = function (...args: any[]) {
+    if (!res.headersSent) {
+      const elapsedHrTime = process.hrtime(startHrTime);
+      const elapsedTimeInMs = (elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6).toFixed(2);
+      res.setHeader('X-Response-Time', `${elapsedTimeInMs}ms`);
+    }
+    return (originalWriteHead as any).apply(this, args);
+  };
+
   res.on('finish', () => {
     const elapsedHrTime = process.hrtime(startHrTime);
-    const elapsedTimeInMs = (elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6).toFixed(2);
-    res.setHeader('X-Response-Time', `${elapsedTimeInMs}ms`);
+    const ms = (elapsedHrTime[0] * 1000 + elapsedHrTime[1] / 1e6).toFixed(1);
+    const status = res.statusCode;
+
+    const color =
+      status >= 500
+        ? '\x1b[31m' // Red
+        : status >= 400
+        ? '\x1b[33m' // Yellow
+        : status >= 300
+        ? '\x1b[36m' // Cyan
+        : '\x1b[32m'; // Green
+
+    const reset = '\x1b[0m';
+    const bold = '\x1b[1m';
+    const gray = '\x1b[90m';
+
+    logger.info(
+      `[HTTP] ${req.method.padEnd(6)} ${req.originalUrl.padEnd(32)} ${color}${bold}${status}${reset} ${gray}(${ms}ms)${reset}`
+    );
   });
 
   next();

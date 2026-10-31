@@ -5,7 +5,7 @@ import { prisma } from './lib/prisma.js';
 
 const PORT = Number(process.env.PORT) || 5000;
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info(`Brightloop API Server running on http://localhost:${PORT}`);
   logger.info(`Interactive API Docs available at http://localhost:${PORT}/api/docs`);
 });

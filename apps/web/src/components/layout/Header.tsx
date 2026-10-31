@@ -8,7 +8,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ title, onSearch }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, isCustomer } = useAuth();
 
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
@@ -29,16 +29,18 @@ export const Header: React.FC<HeaderProps> = ({ title, onSearch }) => {
       </div>
 
       <div className="flex items-center gap-4">
-        {/* Swagger Docs Quicklink */}
-        <a
-          href="http://localhost:5000/api/docs"
-          target="_blank"
-          rel="noreferrer"
-          className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-2.5 py-1.5 rounded-md transition-colors"
-        >
-          <span>API Docs</span>
-          <ExternalLink className="w-3.5 h-3.5" />
-        </a>
+        {/* Swagger Docs Quicklink (Only for Internal Staff/Admin, hidden from Customers) */}
+        {!isCustomer && (
+          <a
+            href="http://localhost:5000/api/docs"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-2.5 py-1.5 rounded-md transition-colors"
+          >
+            <span>API Docs</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        )}
 
         {/* User profile dropdown / logout */}
         <div className="flex items-center gap-2 pl-3 border-l border-slate-200">
