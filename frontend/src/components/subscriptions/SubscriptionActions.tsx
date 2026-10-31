@@ -68,7 +68,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({ subscr
               clearFeedback();
               setDialogState('pause');
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 disabled:opacity-50 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
           >
             {pauseMutation.isPending ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -88,7 +88,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({ subscr
               clearFeedback();
               resume();
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-indigo-700 rounded-lg hover:bg-indigo-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 disabled:opacity-50 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
           >
             {resumeMutation.isPending ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -108,7 +108,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({ subscr
               clearFeedback();
               setDialogState('renew');
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-indigo-700 rounded-lg hover:bg-indigo-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-700 disabled:opacity-50 transition-colors shadow-sm"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary rounded-lg hover:bg-primary-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50 transition-colors shadow-sm cursor-pointer"
           >
             {renewMutation.isPending ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -128,7 +128,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({ subscr
               clearFeedback();
               setDialogState('close');
             }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-50 transition-colors"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:opacity-50 transition-colors cursor-pointer"
           >
             {closeMutation.isPending ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-red-600" />
@@ -153,7 +153,7 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({ subscr
           <button
             type="button"
             onClick={clearFeedback}
-            className="ml-2 font-semibold hover:opacity-75 focus:outline-none"
+            className="ml-2 font-semibold hover:opacity-75 focus:outline-none cursor-pointer"
             aria-label="Dismiss feedback"
           >
             &times;
@@ -195,4 +195,3 @@ export const SubscriptionActions: React.FC<SubscriptionActionsProps> = ({ subscr
     </div>
   );
 };
-

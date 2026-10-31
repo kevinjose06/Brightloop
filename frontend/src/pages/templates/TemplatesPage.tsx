@@ -95,19 +95,26 @@ export const TemplatesPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+      {/* Stitch Context Banner */}
+      <div className="bg-white rounded-card border border-slate-200/90 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-primary/10 text-primary">
+              Proposals
+            </span>
+            <span className="text-xs text-slate-400 font-mono">Catalog • Predefined Bundles</span>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 font-sans">
             Quotation Templates
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 mt-0.5">
             Standard sales bundles that copy predefined plan and line items directly into fresh proposals
           </p>
         </div>
 
         <button
           onClick={handleOpenCreate}
-          className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>New Template</span>
@@ -118,20 +125,20 @@ export const TemplatesPage: React.FC = () => {
         {templates.map((t) => (
           <div
             key={t.id}
-            className="bg-white rounded-card p-5 border border-slate-200/80 shadow-soft hover:shadow-card transition-shadow flex flex-col justify-between"
+            className="bg-white rounded-card p-5 border border-slate-200/90 shadow-sm hover:border-primary/40 transition-all flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+                <span className="p-2 rounded-lg bg-primary/10 text-primary">
                   <FileSpreadsheet className="w-4 h-4" />
                 </span>
-                <span className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full">
+                <span className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full font-mono">
                   Valid {t.validityDays} Days
                 </span>
               </div>
 
               <h3 className="font-bold text-slate-900 text-sm mb-1">{t.name}</h3>
-              <p className="text-xs text-indigo-600 font-semibold mb-3">
+              <p className="text-xs text-primary font-semibold mb-3">
                 Plan: {t.plan?.name} ({formatCurrency(t.plan?.price)} / {t.plan?.billingPeriod})
               </p>
 
@@ -144,7 +151,7 @@ export const TemplatesPage: React.FC = () => {
                     <span className="truncate max-w-[200px]">
                       {l.product?.name} {l.variant ? `(${l.variant.value})` : ''}
                     </span>
-                    <span className="font-semibold text-slate-900">Qty: {l.quantity}</span>
+                    <span className="font-semibold text-slate-900 font-mono">Qty: {l.quantity}</span>
                   </div>
                 ))}
               </div>
@@ -178,7 +185,7 @@ export const TemplatesPage: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Standard CRM + Analytics Bundle"
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -190,7 +197,7 @@ export const TemplatesPage: React.FC = () => {
               <select
                 value={planId}
                 onChange={(e) => setPlanId(e.target.value)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
                 {plans.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -209,7 +216,7 @@ export const TemplatesPage: React.FC = () => {
                 required
                 value={validityDays}
                 onChange={(e) => setValidityDays(parseInt(e.target.value) || 30)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
               />
             </div>
           </div>
@@ -223,7 +230,7 @@ export const TemplatesPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleAddLine}
-                className="text-xs font-semibold text-indigo-600 hover:text-indigo-700"
+                className="text-xs font-semibold text-primary hover:text-primary-hover cursor-pointer"
               >
                 + Add Line Item
               </button>
@@ -242,7 +249,7 @@ export const TemplatesPage: React.FC = () => {
                         updated[idx].variantId = undefined;
                         setLines(updated);
                       }}
-                      className="w-1/2 text-xs px-2.5 py-1.5 border border-slate-300 rounded-md"
+                      className="w-1/2 text-xs px-2.5 py-1.5 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
                     >
                       {products.map((p) => (
                         <option key={p.id} value={p.id}>
@@ -259,7 +266,7 @@ export const TemplatesPage: React.FC = () => {
                           updated[idx].variantId = e.target.value || undefined;
                           setLines(updated);
                         }}
-                        className="w-1/3 text-xs px-2.5 py-1.5 border border-slate-300 rounded-md"
+                        className="w-1/3 text-xs px-2.5 py-1.5 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
                       >
                         <option value="">Standard (No Variant)</option>
                         {prod.variants.map((v) => (
@@ -280,13 +287,13 @@ export const TemplatesPage: React.FC = () => {
                         updated[idx].quantity = parseInt(e.target.value) || 1;
                         setLines(updated);
                       }}
-                      className="w-20 text-xs px-2 py-1.5 border border-slate-300 rounded-md"
+                      className="w-20 text-xs px-2 py-1.5 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary font-mono"
                     />
 
                     <button
                       type="button"
                       onClick={() => handleRemoveLine(idx)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600"
+                      className="p-1.5 text-slate-400 hover:text-rose-600 cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -307,7 +314,7 @@ export const TemplatesPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md shadow-sm disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? 'Creating...' : 'Create Template'}
             </button>
@@ -317,4 +324,3 @@ export const TemplatesPage: React.FC = () => {
     </div>
   );
 };
-

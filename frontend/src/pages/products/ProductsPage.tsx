@@ -111,12 +111,19 @@ export const ProductsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+      {/* Stitch Context Banner */}
+      <div className="bg-white rounded-card border border-slate-200/90 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-primary/10 text-primary">
+              Inventory & Items
+            </span>
+            <span className="text-xs text-slate-400 font-mono">Catalog • Multi-Variants</span>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 font-sans">
             Products & Variants Catalog
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 mt-0.5">
             Manage SaaS software, add-on modules, professional services, and variant pricing
           </p>
         </div>
@@ -124,7 +131,7 @@ export const ProductsPage: React.FC = () => {
         {isAdmin && (
           <button
             onClick={handleOpenCreate}
-            className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>New Product</span>
@@ -133,51 +140,51 @@ export const ProductsPage: React.FC = () => {
       </div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-card border border-slate-200/80 shadow-soft overflow-hidden">
+      <div className="bg-white rounded-card border border-slate-200/90 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 uppercase font-semibold text-slate-500">
+            <thead className="bg-[#FAF8FF] border-b border-slate-200/80 uppercase font-semibold text-slate-500 text-[11px] tracking-wider">
               <tr>
-                <th className="px-6 py-3">Product Name</th>
-                <th className="px-6 py-3">Type</th>
-                <th className="px-6 py-3">Base Sales Price</th>
-                <th className="px-6 py-3">Cost Price</th>
-                <th className="px-6 py-3">Variants</th>
-                <th className="px-6 py-3 text-right">Actions</th>
+                <th className="px-6 py-3.5">Product Name</th>
+                <th className="px-6 py-3.5">Type</th>
+                <th className="px-6 py-3.5">Base Sales Price</th>
+                <th className="px-6 py-3.5">Cost Price</th>
+                <th className="px-6 py-3.5">Variants</th>
+                <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {products.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="px-6 py-4 font-semibold text-slate-900">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded bg-indigo-50 text-indigo-600">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-lg bg-primary/10 text-primary">
                         <Package className="w-4 h-4" />
                       </div>
                       <div>
-                        <span>{p.name}</span>
-                        {p.notes && <p className="text-[11px] font-normal text-slate-400">{p.notes}</p>}
+                        <span className="font-bold text-slate-900 text-xs">{p.name}</span>
+                        {p.notes && <p className="text-[11px] font-normal text-slate-400 mt-0.5">{p.notes}</p>}
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700">
                       {p.type}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-bold text-slate-900">
+                  <td className="px-6 py-4 font-bold text-slate-900 font-mono text-sm">
                     {formatCurrency(p.salesPrice)}
                   </td>
-                  <td className="px-6 py-4 text-slate-500">
+                  <td className="px-6 py-4 text-slate-500 font-mono text-xs">
                     {formatCurrency(p.costPrice)}
                   </td>
                   <td className="px-6 py-4">
                     {p.variants?.length > 0 ? (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1.5">
                         {p.variants.map((v) => (
                           <span
                             key={v.id}
-                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 text-[10px] font-medium border border-indigo-100"
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-primary/10 text-primary text-[10px] font-medium border border-primary/20"
                           >
                             <Tag className="w-3 h-3" />
                             <span>{v.attribute}: {v.value} (+{formatCurrency(v.extraPrice)})</span>
@@ -192,7 +199,8 @@ export const ProductsPage: React.FC = () => {
                     {isAdmin && (
                       <button
                         onClick={() => handleOpenEdit(p)}
-                        className="p-1.5 rounded text-slate-400 hover:text-indigo-600 hover:bg-slate-100 transition-colors"
+                        className="p-1.5 rounded text-slate-400 hover:text-primary hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Edit Product"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
                       </button>
@@ -231,7 +239,7 @@ export const ProductsPage: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Brightloop CRM Core"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -241,7 +249,7 @@ export const ProductsPage: React.FC = () => {
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value as ProductType)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
                 <option value="SOFTWARE">SOFTWARE</option>
                 <option value="SERVICE">SERVICE</option>
@@ -263,7 +271,7 @@ export const ProductsPage: React.FC = () => {
                 required
                 value={salesPrice}
                 onChange={(e) => setSalesPrice(parseFloat(e.target.value) || 0)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -277,7 +285,7 @@ export const ProductsPage: React.FC = () => {
                 required
                 value={costPrice}
                 onChange={(e) => setCostPrice(parseFloat(e.target.value) || 0)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
           </div>
@@ -291,7 +299,7 @@ export const ProductsPage: React.FC = () => {
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               placeholder="Operational details and inclusions..."
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -304,7 +312,7 @@ export const ProductsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={handleAddVariantRow}
-                className="text-indigo-600 hover:text-indigo-700 text-xs font-semibold"
+                className="text-primary hover:text-primary-hover text-xs font-semibold cursor-pointer"
               >
                 + Add Variant
               </button>
@@ -322,7 +330,7 @@ export const ProductsPage: React.FC = () => {
                       updated[idx].attribute = e.target.value;
                       setVariants(updated);
                     }}
-                    className="w-1/3 text-xs px-2.5 py-1.5 border border-slate-300 rounded-md"
+                    className="w-1/3 text-xs px-2.5 py-1.5 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <input
                     type="text"
@@ -333,7 +341,7 @@ export const ProductsPage: React.FC = () => {
                       updated[idx].value = e.target.value;
                       setVariants(updated);
                     }}
-                    className="w-1/3 text-xs px-2.5 py-1.5 border border-slate-300 rounded-md"
+                    className="w-1/3 text-xs px-2.5 py-1.5 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                   <div className="relative w-1/3">
                     <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
@@ -348,13 +356,13 @@ export const ProductsPage: React.FC = () => {
                         updated[idx].extraPrice = parseFloat(e.target.value) || 0;
                         setVariants(updated);
                       }}
-                      className="w-full pl-6 pr-2 py-1.5 text-xs border border-slate-300 rounded-md"
+                      className="w-full pl-6 pr-2 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                   </div>
                   <button
                     type="button"
                     onClick={() => handleRemoveVariantRow(idx)}
-                    className="p-1.5 text-slate-400 hover:text-rose-600"
+                    className="p-1.5 text-slate-400 hover:text-rose-600 cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -374,7 +382,7 @@ export const ProductsPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md shadow-sm disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? 'Saving...' : editingProduct ? 'Save Changes' : 'Create Product'}
             </button>
@@ -384,4 +392,3 @@ export const ProductsPage: React.FC = () => {
     </div>
   );
 };
-
