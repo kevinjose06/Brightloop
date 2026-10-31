@@ -86,12 +86,19 @@ export const PlansPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+      {/* Stitch Context Banner */}
+      <div className="bg-white rounded-card border border-slate-200/90 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-primary/10 text-primary">
+              Pricing Engine
+            </span>
+            <span className="text-xs text-slate-400 font-mono">Catalog • Policies</span>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 font-sans">
             Subscription Plans & Cadence
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 mt-0.5">
             Configure billing cycles, minimum volume thresholds, and customer self-service permission rules
           </p>
         </div>
@@ -99,7 +106,7 @@ export const PlansPage: React.FC = () => {
         {isAdmin && (
           <button
             onClick={handleOpenCreate}
-            className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>New Plan</span>
@@ -108,60 +115,60 @@ export const PlansPage: React.FC = () => {
       </div>
 
       {/* Plans Table */}
-      <div className="bg-white rounded-card border border-slate-200/80 shadow-soft overflow-hidden">
+      <div className="bg-white rounded-card border border-slate-200/90 shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 uppercase font-semibold text-slate-500">
+            <thead className="bg-[#FAF8FF] border-b border-slate-200/80 uppercase font-semibold text-slate-500 text-[11px] tracking-wider">
               <tr>
-                <th className="px-6 py-3">Plan Name</th>
-                <th className="px-6 py-3">Billing Cadence</th>
-                <th className="px-6 py-3">Base Price</th>
-                <th className="px-6 py-3">Min Qty</th>
-                <th className="px-6 py-3">Availability</th>
-                <th className="px-6 py-3">Lifecycle Policies</th>
+                <th className="px-6 py-3.5">Plan Name</th>
+                <th className="px-6 py-3.5">Billing Cadence</th>
+                <th className="px-6 py-3.5">Base Price</th>
+                <th className="px-6 py-3.5">Min Qty</th>
+                <th className="px-6 py-3.5">Availability</th>
+                <th className="px-6 py-3.5">Lifecycle Policies</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {plans.map((p) => (
-                <tr key={p.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={p.id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="px-6 py-4 font-semibold text-slate-900">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded bg-indigo-50 text-indigo-600">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-lg bg-primary/10 text-primary">
                         <Layers className="w-4 h-4" />
                       </div>
-                      <span>{p.name}</span>
+                      <span className="text-xs font-bold text-slate-900">{p.name}</span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-primary/10 text-primary border border-primary/20">
                       {p.billingPeriod}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-bold text-slate-900">
+                  <td className="px-6 py-4 font-bold text-slate-900 font-mono text-sm">
                     {formatCurrency(p.price)}
                   </td>
                   <td className="px-6 py-4 font-medium text-slate-700">
                     {p.minQuantity} seat{p.minQuantity > 1 ? 's' : ''}
                   </td>
-                  <td className="px-6 py-4 text-slate-500">
+                  <td className="px-6 py-4 text-slate-500 font-mono text-[11px]">
                     {formatDate(p.availableFrom)} – {formatDate(p.availableTo)}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3 text-[11px]">
-                      <span className={`inline-flex items-center gap-1 ${p.autoClose ? 'text-indigo-600 font-semibold' : 'text-slate-400'}`}>
-                        {p.autoClose ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                      <span className={`inline-flex items-center gap-1 ${p.autoClose ? 'text-secondary font-semibold' : 'text-slate-400'}`}>
+                        {p.autoClose ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5" />}
                         <span>Auto-Close</span>
                       </span>
-                      <span className={`inline-flex items-center gap-1 ${p.allowEarlyClose ? 'text-indigo-600 font-semibold' : 'text-slate-400'}`}>
-                        {p.allowEarlyClose ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                      <span className={`inline-flex items-center gap-1 ${p.allowEarlyClose ? 'text-secondary font-semibold' : 'text-slate-400'}`}>
+                        {p.allowEarlyClose ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5" />}
                         <span>Early Close</span>
                       </span>
-                      <span className={`inline-flex items-center gap-1 ${p.allowPause ? 'text-indigo-600 font-semibold' : 'text-slate-400'}`}>
-                        {p.allowPause ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                      <span className={`inline-flex items-center gap-1 ${p.allowPause ? 'text-secondary font-semibold' : 'text-slate-400'}`}>
+                        {p.allowPause ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5" />}
                         <span>Pause</span>
                       </span>
-                      <span className={`inline-flex items-center gap-1 ${p.allowRenew ? 'text-indigo-600 font-semibold' : 'text-slate-400'}`}>
-                        {p.allowRenew ? <Check className="w-3.5 h-3.5" /> : <X className="w-3.5 h-3.5" />}
+                      <span className={`inline-flex items-center gap-1 ${p.allowRenew ? 'text-secondary font-semibold' : 'text-slate-400'}`}>
+                        {p.allowRenew ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5" />}
                         <span>Renew</span>
                       </span>
                     </div>
@@ -199,7 +206,7 @@ export const PlansPage: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Monthly Basic"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -209,7 +216,7 @@ export const PlansPage: React.FC = () => {
               <select
                 value={billingPeriod}
                 onChange={(e) => setBillingPeriod(e.target.value as BillingPeriod)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
                 <option value="DAILY">DAILY</option>
                 <option value="WEEKLY">WEEKLY</option>
@@ -231,7 +238,7 @@ export const PlansPage: React.FC = () => {
                 required
                 value={price}
                 onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -244,7 +251,7 @@ export const PlansPage: React.FC = () => {
                 required
                 value={minQuantity}
                 onChange={(e) => setMinQuantity(parseInt(e.target.value) || 1)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
           </div>
@@ -259,7 +266,7 @@ export const PlansPage: React.FC = () => {
                 required
                 value={availableFrom}
                 onChange={(e) => setAvailableFrom(e.target.value)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -271,7 +278,7 @@ export const PlansPage: React.FC = () => {
                 required
                 value={availableTo}
                 onChange={(e) => setAvailableTo(e.target.value)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
           </div>
@@ -287,7 +294,7 @@ export const PlansPage: React.FC = () => {
                   type="checkbox"
                   checked={autoClose}
                   onChange={(e) => setAutoClose(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  className="rounded text-primary focus:ring-primary"
                 />
                 <div>
                   <span className="font-semibold text-slate-900 block">Auto Close</span>
@@ -300,7 +307,7 @@ export const PlansPage: React.FC = () => {
                   type="checkbox"
                   checked={allowEarlyClose}
                   onChange={(e) => setAllowEarlyClose(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  className="rounded text-primary focus:ring-primary"
                 />
                 <div>
                   <span className="font-semibold text-slate-900 block">Allow Early Close</span>
@@ -313,7 +320,7 @@ export const PlansPage: React.FC = () => {
                   type="checkbox"
                   checked={allowPause}
                   onChange={(e) => setAllowPause(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  className="rounded text-primary focus:ring-primary"
                 />
                 <div>
                   <span className="font-semibold text-slate-900 block">Allow Pause</span>
@@ -326,7 +333,7 @@ export const PlansPage: React.FC = () => {
                   type="checkbox"
                   checked={allowRenew}
                   onChange={(e) => setAllowRenew(e.target.checked)}
-                  className="rounded text-indigo-600 focus:ring-indigo-500"
+                  className="rounded text-primary focus:ring-primary"
                 />
                 <div>
                   <span className="font-semibold text-slate-900 block">Allow Renew</span>
@@ -347,7 +354,7 @@ export const PlansPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md shadow-sm disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? 'Creating...' : 'Create Plan'}
             </button>
@@ -357,4 +364,3 @@ export const PlansPage: React.FC = () => {
     </div>
   );
 };
-

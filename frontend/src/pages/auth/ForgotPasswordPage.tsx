@@ -29,17 +29,17 @@ export const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <div className="max-w-md w-full bg-white rounded-card border border-slate-200 shadow-soft p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] px-4">
+      <div className="max-w-md w-full bg-white rounded-card border border-slate-200/90 shadow-sm p-8">
         <Link
           to="/login"
-          className="inline-flex items-center gap-1.5 text-xs text-indigo-600 hover:text-indigo-500 font-medium mb-6"
+          className="inline-flex items-center gap-1.5 text-xs text-primary hover:text-primary-hover font-semibold mb-6 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to sign in</span>
         </Link>
 
-        <h2 className="text-xl font-bold tracking-tight text-slate-900">
+        <h2 className="text-xl font-bold tracking-tight text-slate-900 font-sans">
           Reset Your Password
         </h2>
         <p className="mt-1 text-xs text-slate-500 mb-6">
@@ -60,12 +60,12 @@ export const ForgotPasswordPage: React.FC = () => {
             </div>
 
             {devToken && (
-              <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-md text-xs space-y-2">
-                <p className="font-semibold text-indigo-900">Development Mode Token:</p>
+              <div className="p-3 bg-primary/10 border border-primary/20 rounded-md text-xs space-y-2">
+                <p className="font-semibold text-primary">Development Mode Token:</p>
                 <div className="flex items-center gap-2">
                   <Link
                     to={`/reset-password?token=${devToken}`}
-                    className="px-3 py-1.5 bg-indigo-600 text-white font-medium rounded text-xs hover:bg-indigo-500"
+                    className="px-3 py-1.5 bg-primary text-white font-medium rounded text-xs hover:bg-primary-hover transition-colors"
                   >
                     Click to Open Reset Form
                   </Link>
@@ -92,16 +92,16 @@ export const ForgotPasswordPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-sm transition-all disabled:opacity-50"
+              className="w-full py-2.5 px-4 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
             >
-              {isLoading ? 'Dispatching email...' : 'Send Reset Link'}
+              {isLoading ? 'Dispatching token...' : 'Send Reset Instructions'}
             </button>
           </form>
         )}
@@ -109,4 +109,3 @@ export const ForgotPasswordPage: React.FC = () => {
     </div>
   );
 };
-

@@ -63,13 +63,16 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50 py-12 px-6">
-      <div className="max-w-xl w-full mx-auto bg-white rounded-card border border-slate-200/80 shadow-soft p-8">
+    <div className="min-h-screen flex items-center justify-center bg-[#F8FAFC] py-12 px-6">
+      <div className="max-w-xl w-full mx-auto bg-white rounded-card border border-slate-200/90 shadow-sm p-8">
         <div className="mb-6">
-          <div className="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-lg mb-3">
-            B
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold text-base shadow-sm">
+              B
+            </div>
+            <span className="text-xs font-semibold uppercase tracking-wider text-primary">Brightloop Billing</span>
           </div>
-          <h2 className="text-2xl font-bold tracking-tight text-slate-900">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 font-sans">
             Create Customer Account
           </h2>
           <p className="mt-1 text-xs text-slate-500">
@@ -96,7 +99,7 @@ export const RegisterPage: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Jane Doe"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -108,7 +111,7 @@ export const RegisterPage: React.FC = () => {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 placeholder="Acme Corp"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
           </div>
@@ -124,7 +127,7 @@ export const RegisterPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="jane@acme.com"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -135,7 +138,7 @@ export const RegisterPage: React.FC = () => {
                 <select
                   value={countryCode}
                   onChange={(e) => setCountryCode(e.target.value)}
-                  className="w-24 text-xs px-2 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500 bg-slate-50 font-medium text-slate-700 shrink-0"
+                  className="w-24 text-xs px-2 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary bg-slate-50 font-medium text-slate-700 shrink-0"
                 >
                   <option value="+91">+91 (IN)</option>
                   <option value="+1">+1 (US)</option>
@@ -159,12 +162,12 @@ export const RegisterPage: React.FC = () => {
                       setPhone(digitsOnly);
                     }}
                     placeholder="10-digit number"
-                    className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500 pr-12"
+                    className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary pr-12 font-mono"
                   />
                   {phone.length > 0 && (
                     <span
                       className={`absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-mono ${
-                        phone.length === 10 ? 'text-emerald-600 font-bold' : 'text-slate-400'
+                        phone.length === 10 ? 'text-secondary font-bold' : 'text-slate-400'
                       }`}
                     >
                       {phone.length}/10
@@ -184,7 +187,7 @@ export const RegisterPage: React.FC = () => {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="Suite 500, Cyber Towers, Bengaluru, KA"
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -197,7 +200,7 @@ export const RegisterPage: React.FC = () => {
               value={taxId}
               onChange={(e) => setTaxId(e.target.value)}
               placeholder="29ABCDE1234F1Z5"
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary uppercase font-mono"
             />
           </div>
 
@@ -211,30 +214,30 @@ export const RegisterPage: React.FC = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Min 9 chars (upper, lower, special)"
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             />
 
             {/* Live Password Rule Checklist (PRD §1, §10.2 #1) */}
             <div className="mt-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md space-y-1.5 text-[11px]">
-              <p className="font-semibold text-slate-700 text-xs flex items-center gap-1 mb-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-indigo-600" />
+              <p className="font-semibold text-slate-700 text-xs flex items-center gap-1.5 mb-1">
+                <ShieldCheck className="w-3.5 h-3.5 text-primary" />
                 <span>Password Requirements (PRD Spec):</span>
               </p>
               <div className="grid grid-cols-2 gap-1.5">
-                <div className={`flex items-center gap-1.5 ${hasMinLen ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
-                  {hasMinLen ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
+                <div className={`flex items-center gap-1.5 ${hasMinLen ? 'text-secondary font-medium' : 'text-slate-500'}`}>
+                  {hasMinLen ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
                   <span>Minimum 9 characters</span>
                 </div>
-                <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
-                  {hasUpper ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
+                <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-secondary font-medium' : 'text-slate-500'}`}>
+                  {hasUpper ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
                   <span>Uppercase letter</span>
                 </div>
-                <div className={`flex items-center gap-1.5 ${hasLower ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
-                  {hasLower ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
+                <div className={`flex items-center gap-1.5 ${hasLower ? 'text-secondary font-medium' : 'text-slate-500'}`}>
+                  {hasLower ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
                   <span>Lowercase letter</span>
                 </div>
-                <div className={`flex items-center gap-1.5 ${hasSpecial ? 'text-emerald-700 font-medium' : 'text-slate-500'}`}>
-                  {hasSpecial ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
+                <div className={`flex items-center gap-1.5 ${hasSpecial ? 'text-secondary font-medium' : 'text-slate-500'}`}>
+                  {hasSpecial ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
                   <span>Special character</span>
                 </div>
               </div>
@@ -244,7 +247,7 @@ export const RegisterPage: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading || !isPasswordValid}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all disabled:opacity-50 mt-6"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50 mt-6 cursor-pointer"
           >
             <span>{isLoading ? 'Creating account...' : 'Create Account'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -253,7 +256,7 @@ export const RegisterPage: React.FC = () => {
 
         <p className="mt-6 text-center text-xs text-slate-500">
           Already registered?{' '}
-          <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
+          <Link to="/login" className="font-semibold text-primary hover:underline">
             Sign in here
           </Link>
         </p>

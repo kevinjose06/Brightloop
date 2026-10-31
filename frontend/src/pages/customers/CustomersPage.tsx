@@ -62,26 +62,33 @@ export const CustomersPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+      {/* Stitch Context Banner */}
+      <div className="bg-white rounded-card border border-slate-200/90 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-primary/10 text-primary">
+              Directory
+            </span>
+            <span className="text-xs text-slate-400 font-mono">Accounts • GST Directory</span>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 font-sans">
             Customer Accounts
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 mt-0.5">
             Enterprise customer records, tax identifiers, active subscriptions, and account balances
           </p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>New Customer</span>
         </button>
       </div>
 
-      <div className="bg-white p-3.5 rounded-card border border-slate-200/80 shadow-soft flex items-center gap-3 text-xs">
+      <div className="bg-white p-3.5 rounded-card border border-slate-200/90 shadow-sm flex items-center gap-3 text-xs">
         <div className="relative flex-1 max-w-md">
           <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -89,7 +96,7 @@ export const CustomersPage: React.FC = () => {
             placeholder="Search accounts by name, company, or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md focus:ring-1 focus:ring-indigo-500"
+            className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary text-xs"
           />
         </div>
       </div>
@@ -105,14 +112,14 @@ export const CustomersPage: React.FC = () => {
           return (
             <div
               key={c.id}
-              className="bg-white rounded-card p-5 border border-slate-200/80 shadow-soft hover:shadow-card transition-shadow flex flex-col justify-between"
+              className="bg-white rounded-card p-5 border border-slate-200/90 shadow-sm hover:border-primary/40 transition-all flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2 rounded-lg bg-primary/10 text-primary">
                     <Building className="w-4 h-4" />
                   </div>
-                  <span className="text-[11px] font-semibold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">
+                  <span className="text-[11px] font-semibold text-primary bg-primary/10 px-2.5 py-0.5 rounded-full border border-primary/20">
                     {activeSubsCount} Active Sub{activeSubsCount === 1 ? '' : 's'}
                   </span>
                 </div>
@@ -120,19 +127,19 @@ export const CustomersPage: React.FC = () => {
                 <h3 className="font-bold text-slate-900 text-base">{c.name}</h3>
                 {c.company && <p className="text-xs text-slate-600 font-medium">{c.company}</p>}
 
-                <div className="mt-3 space-y-1 text-xs text-slate-500 border-t border-slate-100 pt-3">
+                <div className="mt-3 space-y-1.5 text-xs text-slate-500 border-t border-slate-100 pt-3">
                   <div className="flex items-center gap-1.5">
                     <Mail className="w-3.5 h-3.5 text-slate-400" />
-                    <span>{c.email}</span>
+                    <span className="truncate">{c.email}</span>
                   </div>
                   {c.phone && (
                     <div className="flex items-center gap-1.5">
                       <Phone className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{c.phone}</span>
+                      <span className="font-mono">{c.phone}</span>
                     </div>
                   )}
                   {c.taxId && (
-                    <p className="text-[11px] text-slate-400 pt-1">GST/Tax: {c.taxId}</p>
+                    <p className="text-[11px] text-slate-400 pt-1 font-mono">GST: {c.taxId}</p>
                   )}
                 </div>
               </div>
@@ -140,8 +147,8 @@ export const CustomersPage: React.FC = () => {
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                 <span className="text-slate-500">Outstanding:</span>
                 <span
-                  className={`font-bold ${
-                    outstanding > 0 ? 'text-amber-600' : 'text-emerald-600'
+                  className={`font-bold font-mono ${
+                    outstanding > 0 ? 'text-amber-700' : 'text-secondary'
                   }`}
                 >
                   {formatCurrency(outstanding)}
@@ -169,7 +176,7 @@ export const CustomersPage: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Jane Doe"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -181,7 +188,7 @@ export const CustomersPage: React.FC = () => {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 placeholder="Acme Corp"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
           </div>
@@ -197,7 +204,7 @@ export const CustomersPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="billing@acme.com"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -209,7 +216,7 @@ export const CustomersPage: React.FC = () => {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 98765 43210"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
               />
             </div>
           </div>
@@ -223,7 +230,7 @@ export const CustomersPage: React.FC = () => {
               value={address}
               onChange={(e) => setAddress(e.target.value)}
               placeholder="100 Tech Park, Bengaluru"
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -236,7 +243,7 @@ export const CustomersPage: React.FC = () => {
               value={taxId}
               onChange={(e) => setTaxId(e.target.value)}
               placeholder="29ABCDE1234F1Z5"
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary uppercase font-mono"
             />
           </div>
 
@@ -251,7 +258,7 @@ export const CustomersPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md shadow-sm disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? 'Creating...' : 'Create Account'}
             </button>
@@ -261,4 +268,3 @@ export const CustomersPage: React.FC = () => {
     </div>
   );
 };
-

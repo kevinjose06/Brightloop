@@ -107,12 +107,19 @@ export const TaxesDiscountsPage: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+      {/* Stitch Context Banner */}
+      <div className="bg-white rounded-card border border-slate-200/90 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-primary/10 text-primary">
+              Fiscal Engine
+            </span>
+            <span className="text-xs text-slate-400 font-mono">Tax Slabs • Promotional Logic</span>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 font-sans">
             Taxes & Promotional Discounts
           </h1>
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 mt-0.5">
             Automated tax calculation priority and atomic discount redemption controls
           </p>
         </div>
@@ -120,7 +127,7 @@ export const TaxesDiscountsPage: React.FC = () => {
         {isAdmin && (
           <button
             onClick={() => (activeTab === 'TAXES' ? setIsTaxModalOpen(true) : setIsDiscountModalOpen(true))}
-            className="flex items-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow-sm transition-all"
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg text-xs font-semibold shadow-sm transition-all cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>New {activeTab === 'TAXES' ? 'Tax Rule' : 'Discount Rule'}</span>
@@ -129,12 +136,12 @@ export const TaxesDiscountsPage: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200 text-xs font-semibold">
+      <div className="flex items-center gap-4 border-b border-slate-200 text-xs font-semibold">
         <button
           onClick={() => setActiveTab('DISCOUNTS')}
-          className={`pb-2.5 px-3 border-b-2 transition-colors ${
+          className={`pb-2.5 px-2 border-b-2 transition-colors cursor-pointer ${
             activeTab === 'DISCOUNTS'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-primary text-primary font-bold'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -142,9 +149,9 @@ export const TaxesDiscountsPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('TAXES')}
-          className={`pb-2.5 px-3 border-b-2 transition-colors ${
+          className={`pb-2.5 px-2 border-b-2 transition-colors cursor-pointer ${
             activeTab === 'TAXES'
-              ? 'border-indigo-600 text-indigo-600'
+              ? 'border-primary text-primary font-bold'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -154,15 +161,15 @@ export const TaxesDiscountsPage: React.FC = () => {
 
       {/* Discounts Tab */}
       {activeTab === 'DISCOUNTS' && (
-        <div className="bg-white rounded-card border border-slate-200/80 shadow-soft overflow-hidden">
+        <div className="bg-white rounded-card border border-slate-200/90 shadow-sm overflow-hidden">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 uppercase font-semibold text-slate-500">
+            <thead className="bg-[#FAF8FF] border-b border-slate-200/80 uppercase font-semibold text-slate-500 text-[11px] tracking-wider">
               <tr>
-                <th className="px-6 py-3">Discount Name</th>
-                <th className="px-6 py-3">Type & Value</th>
-                <th className="px-6 py-3">Scope</th>
-                <th className="px-6 py-3">Usage Progress</th>
-                <th className="px-6 py-3">Valid Dates</th>
+                <th className="px-6 py-3.5">Discount Name</th>
+                <th className="px-6 py-3.5">Type & Value</th>
+                <th className="px-6 py-3.5">Scope</th>
+                <th className="px-6 py-3.5">Usage Progress</th>
+                <th className="px-6 py-3.5">Valid Dates</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -171,33 +178,33 @@ export const TaxesDiscountsPage: React.FC = () => {
                 const percentUsed = d.usageLimit ? Math.min(100, (d.usedCount / d.usageLimit) * 100) : 0;
 
                 return (
-                  <tr key={d.id} className="hover:bg-slate-50/50 transition-colors">
+                  <tr key={d.id} className="hover:bg-slate-50/70 transition-colors">
                     <td className="px-6 py-4 font-semibold text-slate-900">
-                      <div className="flex items-center gap-2">
-                        <div className="p-1.5 rounded bg-indigo-50 text-indigo-600">
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-2 rounded-lg bg-primary/10 text-primary">
                           <Tag className="w-4 h-4" />
                         </div>
                         <div>
-                          <span>{d.name}</span>
+                          <span className="font-bold text-slate-900 text-xs">{d.name}</span>
                           {d.minQuantity && (
-                            <span className="block text-[10px] text-slate-400">
+                            <span className="block text-[10px] text-slate-400 mt-0.5">
                               Requires min {d.minQuantity} seats
                             </span>
                           )}
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 font-bold text-slate-900">
+                    <td className="px-6 py-4 font-bold text-slate-900 font-mono text-sm">
                       {d.kind === 'FIXED' ? formatCurrency(d.value) : `${d.value}% Off`}
                     </td>
                     <td className="px-6 py-4">
-                      <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700">
                         {d.scope}
                       </span>
                     </td>
                     <td className="px-6 py-4">
                       <div className="w-44">
-                        <div className="flex justify-between text-[11px] mb-1">
+                        <div className="flex justify-between text-[11px] mb-1 font-mono">
                           <span className={isExhausted ? 'text-rose-600 font-bold' : 'text-slate-600'}>
                             {d.usedCount} / {d.usageLimit ?? '∞'} used
                           </span>
@@ -211,15 +218,15 @@ export const TaxesDiscountsPage: React.FC = () => {
                           <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                             <div
                               style={{ width: `${percentUsed}%` }}
-                              className={`h-full rounded-full ${
-                                isExhausted ? 'bg-rose-500' : 'bg-indigo-600'
+                              className={`h-full rounded-full transition-all ${
+                                isExhausted ? 'bg-rose-500' : 'bg-primary'
                               }`}
                             ></div>
                           </div>
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-slate-500">
+                    <td className="px-6 py-4 text-slate-500 font-mono text-[11px]">
                       {formatDate(d.startDate)} – {formatDate(d.endDate)}
                     </td>
                   </tr>
@@ -232,37 +239,37 @@ export const TaxesDiscountsPage: React.FC = () => {
 
       {/* Taxes Tab */}
       {activeTab === 'TAXES' && (
-        <div className="bg-white rounded-card border border-slate-200/80 shadow-soft overflow-hidden">
+        <div className="bg-white rounded-card border border-slate-200/90 shadow-sm overflow-hidden">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 uppercase font-semibold text-slate-500">
+            <thead className="bg-[#FAF8FF] border-b border-slate-200/80 uppercase font-semibold text-slate-500 text-[11px] tracking-wider">
               <tr>
-                <th className="px-6 py-3">Tax Rule Name</th>
-                <th className="px-6 py-3">Rate Percent</th>
-                <th className="px-6 py-3">Applicable Product Type</th>
-                <th className="px-6 py-3">Priority</th>
-                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3.5">Tax Rule Name</th>
+                <th className="px-6 py-3.5">Rate Percent</th>
+                <th className="px-6 py-3.5">Applicable Product Type</th>
+                <th className="px-6 py-3.5">Priority</th>
+                <th className="px-6 py-3.5">Status</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {taxes.map((t) => (
-                <tr key={t.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={t.id} className="hover:bg-slate-50/70 transition-colors">
                   <td className="px-6 py-4 font-semibold text-slate-900">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 rounded bg-indigo-50 text-indigo-600">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 rounded-lg bg-primary/10 text-primary">
                         <Percent className="w-4 h-4" />
                       </div>
-                      <span>{t.name}</span>
+                      <span className="font-bold text-slate-900 text-xs">{t.name}</span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 font-bold text-slate-900">{t.ratePercent}%</td>
+                  <td className="px-6 py-4 font-bold text-slate-900 font-mono text-sm">{t.ratePercent}%</td>
                   <td className="px-6 py-4">
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700">
+                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-700">
                       {t.productType || 'All Product Types'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-medium text-slate-700">{t.priority}</td>
+                  <td className="px-6 py-4 font-medium text-slate-700 font-mono">{t.priority}</td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
                       Active
                     </span>
                   </td>
@@ -297,7 +304,7 @@ export const TaxesDiscountsPage: React.FC = () => {
               value={taxName}
               onChange={(e) => setTaxName(e.target.value)}
               placeholder="e.g. GST Software 18%"
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -313,7 +320,7 @@ export const TaxesDiscountsPage: React.FC = () => {
                 required
                 value={ratePercent}
                 onChange={(e) => setRatePercent(parseFloat(e.target.value) || 0)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
             <div>
@@ -324,7 +331,7 @@ export const TaxesDiscountsPage: React.FC = () => {
                 type="number"
                 value={priority}
                 onChange={(e) => setPriority(parseInt(e.target.value) || 0)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
           </div>
@@ -336,7 +343,7 @@ export const TaxesDiscountsPage: React.FC = () => {
             <select
               value={productType}
               onChange={(e) => setProductType(e.target.value as ProductType | '')}
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             >
               <option value="">Apply to All Product Types</option>
               <option value="SOFTWARE">SOFTWARE</option>
@@ -357,7 +364,7 @@ export const TaxesDiscountsPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md shadow-sm disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? 'Saving...' : 'Create Tax Rule'}
             </button>
@@ -390,7 +397,7 @@ export const TaxesDiscountsPage: React.FC = () => {
               value={discountName}
               onChange={(e) => setDiscountName(e.target.value)}
               placeholder="e.g. Volume 10% Discount"
-              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+              className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
             />
           </div>
 
@@ -402,7 +409,7 @@ export const TaxesDiscountsPage: React.FC = () => {
               <select
                 value={kind}
                 onChange={(e) => setKind(e.target.value as DiscountKind)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
                 <option value="PERCENT">PERCENT (%)</option>
                 <option value="FIXED">FIXED AMOUNT (₹)</option>
@@ -418,7 +425,7 @@ export const TaxesDiscountsPage: React.FC = () => {
                 required
                 value={discountValue}
                 onChange={(e) => setDiscountValue(parseFloat(e.target.value) || 0)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
               />
             </div>
           </div>
@@ -431,7 +438,7 @@ export const TaxesDiscountsPage: React.FC = () => {
               <select
                 value={scope}
                 onChange={(e) => setScope(e.target.value as DiscountScope)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
                 <option value="SUBSCRIPTION">Entire Subscription</option>
                 <option value="PRODUCT">Specific Product Line</option>
@@ -447,7 +454,7 @@ export const TaxesDiscountsPage: React.FC = () => {
                 value={usageLimit}
                 onChange={(e) => setUsageLimit(e.target.value ? parseInt(e.target.value) : '')}
                 placeholder="e.g. 3 uses max"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
           </div>
@@ -460,7 +467,7 @@ export const TaxesDiscountsPage: React.FC = () => {
               <select
                 value={selectedProductId}
                 onChange={(e) => setSelectedProductId(e.target.value)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               >
                 <option value="">Select a Product</option>
                 {products.map((p) => (
@@ -482,7 +489,7 @@ export const TaxesDiscountsPage: React.FC = () => {
                 required
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
               />
             </div>
             <div>
@@ -494,7 +501,7 @@ export const TaxesDiscountsPage: React.FC = () => {
                 required
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary font-mono"
               />
             </div>
           </div>
@@ -510,7 +517,7 @@ export const TaxesDiscountsPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-md shadow-sm disabled:opacity-50"
+              className="px-4 py-2 text-xs font-semibold text-white bg-primary hover:bg-primary-hover rounded-md shadow-sm disabled:opacity-50 cursor-pointer"
             >
               {isLoading ? 'Creating...' : 'Create Discount'}
             </button>

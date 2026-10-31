@@ -109,7 +109,7 @@ export const SubscriptionDetailPage: React.FC = () => {
     return (
       <div className="p-8 text-center">
         <p className="text-slate-600 text-sm mb-4">Subscription record not found.</p>
-        <Link to="/subscriptions" className="text-indigo-600 text-xs font-semibold">
+        <Link to="/subscriptions" className="text-primary text-xs font-semibold hover:underline">
           ← Back to subscriptions
         </Link>
       </div>
@@ -125,16 +125,17 @@ export const SubscriptionDetailPage: React.FC = () => {
       <div>
         <Link
           to="/subscriptions"
-          className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-indigo-600 font-medium mb-3"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-primary font-medium mb-3 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Subscriptions</span>
         </Link>
 
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
+        {/* Stitch Context Banner */}
+        <div className="bg-white rounded-card border border-slate-200/90 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-bold tracking-tight text-slate-900 font-mono">
                 {subscription.number}
               </h1>
               <StatusBadge status={subscription.status} />
@@ -155,7 +156,7 @@ export const SubscriptionDetailPage: React.FC = () => {
               <button
                 disabled={isProcessing}
                 onClick={() => handleTransition('QUOTATION')}
-                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-sm"
+                className="px-3.5 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm cursor-pointer"
               >
                 Send Quotation
               </button>
@@ -165,7 +166,7 @@ export const SubscriptionDetailPage: React.FC = () => {
               <button
                 disabled={isProcessing}
                 onClick={() => handleTransition('CONFIRMED')}
-                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-sm"
+                className="px-3.5 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm cursor-pointer"
               >
                 Confirm Subscription
               </button>
@@ -175,7 +176,7 @@ export const SubscriptionDetailPage: React.FC = () => {
               <button
                 disabled={isProcessing}
                 onClick={() => handleTransition('ACTIVE')}
-                className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-sm"
+                className="px-3.5 py-2 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm cursor-pointer"
               >
                 Activate Subscription
               </button>
@@ -187,7 +188,7 @@ export const SubscriptionDetailPage: React.FC = () => {
                   <button
                     disabled={isProcessing}
                     onClick={handleTogglePause}
-                    className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg"
+                    className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg cursor-pointer"
                   >
                     {subscription.isPaused ? 'Resume Billing' : 'Pause Subscription'}
                   </button>
@@ -197,7 +198,7 @@ export const SubscriptionDetailPage: React.FC = () => {
                   <button
                     disabled={isProcessing}
                     onClick={handleRenew}
-                    className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg"
+                    className="px-3 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-semibold rounded-lg cursor-pointer"
                   >
                     Extend / Renew
                   </button>
@@ -206,7 +207,7 @@ export const SubscriptionDetailPage: React.FC = () => {
                 <button
                   disabled={isProcessing}
                   onClick={handleRunBillingNow}
-                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5"
+                  className="px-3.5 py-2 bg-secondary hover:bg-secondary/90 text-white text-xs font-semibold rounded-lg shadow-sm flex items-center gap-1.5 cursor-pointer"
                   title="Generate invoice immediately for this subscription"
                 >
                   <PlayCircle className="w-3.5 h-3.5" />
@@ -216,7 +217,7 @@ export const SubscriptionDetailPage: React.FC = () => {
                 <button
                   disabled={isProcessing}
                   onClick={() => handleTransition('CLOSED')}
-                  className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold rounded-lg"
+                  className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold rounded-lg cursor-pointer"
                 >
                   Close Subscription
                 </button>
@@ -242,8 +243,8 @@ export const SubscriptionDetailPage: React.FC = () => {
       )}
 
       {/* Status Stepper (PRD §7, §10.2 #8) */}
-      <div className="bg-white rounded-card p-6 border border-slate-200/80 shadow-soft">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4">
+      <div className="bg-white rounded-card p-6 border border-slate-200/90 shadow-sm">
+        <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-4">
           Lifecycle State Machine
         </p>
         <div className="flex items-center justify-between relative">
@@ -257,9 +258,9 @@ export const SubscriptionDetailPage: React.FC = () => {
                 <div
                   className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs transition-colors ${
                     isCurrent
-                      ? 'bg-indigo-600 text-white ring-4 ring-indigo-100'
+                      ? 'bg-primary text-white ring-4 ring-primary/20'
                       : isCompleted
-                      ? 'bg-emerald-600 text-white'
+                      ? 'bg-secondary text-white'
                       : 'bg-white border-2 border-slate-300 text-slate-400'
                   }`}
                 >
@@ -268,7 +269,7 @@ export const SubscriptionDetailPage: React.FC = () => {
                 <span
                   className={`text-[11px] font-semibold uppercase tracking-wider ${
                     isCurrent
-                      ? 'text-indigo-600 font-bold'
+                      ? 'text-primary font-bold'
                       : isCompleted
                       ? 'text-slate-800'
                       : 'text-slate-400'
@@ -284,8 +285,8 @@ export const SubscriptionDetailPage: React.FC = () => {
 
       {/* Summary Grid & Metadata */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white rounded-card p-5 border border-slate-200/80 shadow-soft space-y-3">
-          <div className="flex items-center gap-2 text-indigo-600 text-xs font-semibold">
+        <div className="bg-white rounded-card p-5 border border-slate-200/90 shadow-sm space-y-3">
+          <div className="flex items-center gap-2 text-primary text-xs font-semibold">
             <Building className="w-4 h-4" />
             <span>Customer Profile</span>
           </div>
@@ -293,46 +294,46 @@ export const SubscriptionDetailPage: React.FC = () => {
             <p className="text-sm font-bold text-slate-900">{subscription.customer?.name}</p>
             <p className="text-xs text-slate-500">{subscription.customer?.email}</p>
             {subscription.customer?.phone && (
-              <p className="text-xs text-slate-500">{subscription.customer?.phone}</p>
+              <p className="text-xs text-slate-500 font-mono">{subscription.customer?.phone}</p>
             )}
             {subscription.customer?.taxId && (
-              <p className="text-xs text-slate-500 mt-1">Tax ID: {subscription.customer?.taxId}</p>
+              <p className="text-xs text-slate-500 mt-1 font-mono">Tax ID: {subscription.customer?.taxId}</p>
             )}
           </div>
         </div>
 
-        <div className="bg-white rounded-card p-5 border border-slate-200/80 shadow-soft space-y-3">
-          <div className="flex items-center gap-2 text-indigo-600 text-xs font-semibold">
+        <div className="bg-white rounded-card p-5 border border-slate-200/90 shadow-sm space-y-3">
+          <div className="flex items-center gap-2 text-primary text-xs font-semibold">
             <Layers className="w-4 h-4" />
             <span>Plan Cadence</span>
           </div>
           <div>
             <p className="text-sm font-bold text-slate-900">{subscription.plan?.name}</p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 font-mono">
               {formatCurrency(subscription.plan?.price)} per {subscription.plan?.billingPeriod}
             </p>
             <p className="text-xs text-slate-500 mt-1">
-              Terms: <span className="font-semibold">{subscription.paymentTerms}</span>
+              Terms: <span className="font-semibold text-slate-800">{subscription.paymentTerms}</span>
             </p>
           </div>
         </div>
 
-        <div className="bg-white rounded-card p-5 border border-slate-200/80 shadow-soft space-y-3">
-          <div className="flex items-center gap-2 text-indigo-600 text-xs font-semibold">
+        <div className="bg-white rounded-card p-5 border border-slate-200/90 shadow-sm space-y-3">
+          <div className="flex items-center gap-2 text-primary text-xs font-semibold">
             <Calendar className="w-4 h-4" />
             <span>Billing Timeline</span>
           </div>
-          <div className="text-xs space-y-1">
+          <div className="text-xs space-y-1 font-mono">
             <div className="flex justify-between">
-              <span className="text-slate-500">Start Date:</span>
+              <span className="text-slate-500 font-sans">Start Date:</span>
               <span className="font-semibold text-slate-800">{formatDate(subscription.startDate)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Next Billing:</span>
-              <span className="font-semibold text-indigo-600">{formatDate(subscription.nextInvoiceDate)}</span>
+              <span className="text-slate-500 font-sans">Next Billing:</span>
+              <span className="font-semibold text-primary">{formatDate(subscription.nextInvoiceDate)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-500">Contract Expiry:</span>
+              <span className="text-slate-500 font-sans">Contract Expiry:</span>
               <span className="font-semibold text-slate-800">{formatDate(subscription.expiryDate)}</span>
             </div>
           </div>
@@ -340,46 +341,46 @@ export const SubscriptionDetailPage: React.FC = () => {
       </div>
 
       {/* Subscription Line Items (Effective Pricing PRD §8.1) */}
-      <div className="bg-white rounded-card border border-slate-200/80 shadow-soft overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50">
+      <div className="bg-white rounded-card border border-slate-200/90 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200/80 bg-slate-50/50">
           <h3 className="font-bold text-slate-900 text-sm">Configured Line Items & Variant Pricing</h3>
           <p className="text-xs text-slate-500">Effective unit prices snapshot at creation</p>
         </div>
         <table className="w-full text-left text-xs">
-          <thead className="bg-slate-50/80 border-b border-slate-200 uppercase font-semibold text-slate-500">
+          <thead className="bg-[#FAF8FF] border-b border-slate-200/80 uppercase font-semibold text-slate-500 text-[11px] tracking-wider">
             <tr>
-              <th className="px-6 py-3">Product Description</th>
-              <th className="px-6 py-3">Selected Variant</th>
-              <th className="px-6 py-3 text-center">Quantity</th>
-              <th className="px-6 py-3 text-right">Effective Unit Price</th>
-              <th className="px-6 py-3 text-right">Recurring Line Total</th>
+              <th className="px-6 py-3.5">Product Description</th>
+              <th className="px-6 py-3.5">Selected Variant</th>
+              <th className="px-6 py-3.5 text-center">Quantity</th>
+              <th className="px-6 py-3.5 text-right">Effective Unit Price</th>
+              <th className="px-6 py-3.5 text-right">Recurring Line Total</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {subscription.lines?.map((line) => (
-              <tr key={line.id} className="hover:bg-slate-50/50">
+              <tr key={line.id} className="hover:bg-slate-50/70 transition-colors">
                 <td className="px-6 py-4 font-semibold text-slate-900">{line.product?.name}</td>
                 <td className="px-6 py-4">
                   {line.variant ? (
-                    <span className="px-2 py-0.5 rounded bg-indigo-50 text-indigo-700 text-[11px] font-medium border border-indigo-100">
+                    <span className="px-2 py-0.5 rounded bg-primary/10 text-primary text-[11px] font-medium border border-primary/20">
                       {line.variant.attribute}: {line.variant.value} (+{formatCurrency(line.variant.extraPrice)})
                     </span>
                   ) : (
                     <span className="text-slate-400 italic">None</span>
                   )}
                 </td>
-                <td className="px-6 py-4 text-center font-medium">{line.quantity}</td>
-                <td className="px-6 py-4 text-right text-slate-700">{formatCurrency(line.unitPrice)}</td>
-                <td className="px-6 py-4 text-right font-bold text-slate-900">{formatCurrency(line.amount)}</td>
+                <td className="px-6 py-4 text-center font-medium font-mono">{line.quantity}</td>
+                <td className="px-6 py-4 text-right text-slate-700 font-mono">{formatCurrency(line.unitPrice)}</td>
+                <td className="px-6 py-4 text-right font-bold text-slate-900 font-mono">{formatCurrency(line.amount)}</td>
               </tr>
             ))}
           </tbody>
-          <tfoot className="bg-slate-50/60 font-semibold border-t border-slate-200">
+          <tfoot className="bg-[#FAF8FF] font-semibold border-t border-slate-200/80">
             <tr>
-              <td colSpan={4} className="px-6 py-3 text-right text-slate-600">
+              <td colSpan={4} className="px-6 py-3.5 text-right text-slate-600">
                 Total Recurring Period Amount:
               </td>
-              <td className="px-6 py-3 text-right font-extrabold text-indigo-600 text-sm">
+              <td className="px-6 py-3.5 text-right font-bold text-primary font-mono text-sm">
                 {formatCurrency(subscription.lines?.reduce((sum, l) => sum + l.amount, 0))}
               </td>
             </tr>
@@ -388,8 +389,8 @@ export const SubscriptionDetailPage: React.FC = () => {
       </div>
 
       {/* Generated Invoices Tab */}
-      <div className="bg-white rounded-card border border-slate-200/80 shadow-soft overflow-hidden">
-        <div className="px-6 py-4 border-b border-slate-200 bg-slate-50/50 flex items-center justify-between">
+      <div className="bg-white rounded-card border border-slate-200/90 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-200/80 bg-slate-50/50 flex items-center justify-between">
           <div>
             <h3 className="font-bold text-slate-900 text-sm">Generated Invoices</h3>
             <p className="text-xs text-slate-500">History of billing cycles created for this contract</p>
@@ -398,38 +399,38 @@ export const SubscriptionDetailPage: React.FC = () => {
 
         {subscription.invoices && subscription.invoices.length > 0 ? (
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/80 border-b border-slate-200 uppercase font-semibold text-slate-500">
+            <thead className="bg-[#FAF8FF] border-b border-slate-200/80 uppercase font-semibold text-slate-500 text-[11px] tracking-wider">
               <tr>
-                <th className="px-6 py-3">Invoice #</th>
-                <th className="px-6 py-3">Period</th>
-                <th className="px-6 py-3">Due Date</th>
-                <th className="px-6 py-3">Status</th>
-                <th className="px-6 py-3 text-right">Total</th>
-                <th className="px-6 py-3 text-right">Action</th>
+                <th className="px-6 py-3.5">Invoice #</th>
+                <th className="px-6 py-3.5">Period</th>
+                <th className="px-6 py-3.5">Due Date</th>
+                <th className="px-6 py-3.5">Status</th>
+                <th className="px-6 py-3.5 text-right">Total</th>
+                <th className="px-6 py-3.5 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {subscription.invoices.map((inv) => (
-                <tr key={inv.id} className="hover:bg-slate-50/50">
-                  <td className="px-6 py-4 font-bold text-slate-900">
-                    <Link to={`/invoices/${inv.id}`} className="text-indigo-600 hover:underline">
+                <tr key={inv.id} className="hover:bg-slate-50/70 transition-colors">
+                  <td className="px-6 py-4 font-bold text-slate-900 font-mono">
+                    <Link to={`/invoices/${inv.id}`} className="text-primary hover:underline">
                       {inv.number}
                     </Link>
                   </td>
-                  <td className="px-6 py-4 text-slate-600">
+                  <td className="px-6 py-4 text-slate-600 font-mono">
                     {formatDate(inv.periodStart)} – {formatDate(inv.periodEnd)}
                   </td>
-                  <td className="px-6 py-4 text-slate-600">{formatDate(inv.dueDate)}</td>
+                  <td className="px-6 py-4 text-slate-600 font-mono">{formatDate(inv.dueDate)}</td>
                   <td className="px-6 py-4">
                     <StatusBadge status={inv.status} />
                   </td>
-                  <td className="px-6 py-4 text-right font-bold text-slate-900">
+                  <td className="px-6 py-4 text-right font-bold text-slate-900 font-mono">
                     {formatCurrency(inv.total)}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <Link
                       to={`/invoices/${inv.id}`}
-                      className="text-indigo-600 hover:text-indigo-800 font-semibold"
+                      className="text-primary hover:text-primary-hover font-semibold inline-flex items-center gap-1"
                     >
                       View →
                     </Link>
@@ -447,4 +448,3 @@ export const SubscriptionDetailPage: React.FC = () => {
     </div>
   );
 };
-

@@ -46,20 +46,27 @@ export const StaffPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <div className="pb-2 border-b border-slate-200">
-        <h1 className="text-xl font-bold tracking-tight text-slate-900">
-          Staff Account Provisioning (Admin Only)
+    <div className="space-y-6 max-w-5xl mx-auto">
+      {/* Stitch Context Banner */}
+      <div className="bg-white rounded-card border border-slate-200/90 p-5 shadow-sm">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-primary/10 text-primary">
+            Administration
+          </span>
+          <span className="text-xs text-slate-400 font-mono">RBAC • Internal Provisioning</span>
+        </div>
+        <h1 className="text-xl font-bold tracking-tight text-slate-900 font-sans">
+          Staff Account Provisioning
         </h1>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-500 mt-0.5">
           Grant internal operations credentials with access to billing runs, quotations, and payments
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 bg-white rounded-card p-6 border border-slate-200/80 shadow-soft">
+        <div className="md:col-span-2 bg-white rounded-card p-6 border border-slate-200/90 shadow-sm">
           <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
-            <UserPlus className="w-4 h-4 text-indigo-600" />
+            <UserPlus className="w-4 h-4 text-primary" />
             <h3 className="font-bold text-slate-900 text-sm">Create New Staff Member</h3>
           </div>
 
@@ -88,7 +95,7 @@ export const StaffPage: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Jane Staff"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
 
@@ -102,7 +109,7 @@ export const StaffPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="staff.member@brightloop.test"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
             </div>
 
@@ -116,25 +123,25 @@ export const StaffPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min 9 chars (upper, lower, special)"
-                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:ring-1 focus:ring-indigo-500"
+                className="w-full text-xs px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary"
               />
 
               <div className="mt-2.5 p-3 bg-slate-50 border border-slate-200 rounded-md space-y-1 text-[11px]">
                 <div className="grid grid-cols-2 gap-1.5">
-                  <div className={`flex items-center gap-1.5 ${hasMinLen ? 'text-emerald-700' : 'text-slate-500'}`}>
-                    {hasMinLen ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
+                  <div className={`flex items-center gap-1.5 ${hasMinLen ? 'text-secondary font-medium' : 'text-slate-500'}`}>
+                    {hasMinLen ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
                     <span>9+ characters</span>
                   </div>
-                  <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-700' : 'text-slate-500'}`}>
-                    {hasUpper ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
+                  <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-secondary font-medium' : 'text-slate-500'}`}>
+                    {hasUpper ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
                     <span>Uppercase letter</span>
                   </div>
-                  <div className={`flex items-center gap-1.5 ${hasLower ? 'text-emerald-700' : 'text-slate-500'}`}>
-                    {hasLower ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
+                  <div className={`flex items-center gap-1.5 ${hasLower ? 'text-secondary font-medium' : 'text-slate-500'}`}>
+                    {hasLower ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
                     <span>Lowercase letter</span>
                   </div>
-                  <div className={`flex items-center gap-1.5 ${hasSpecial ? 'text-emerald-700' : 'text-slate-500'}`}>
-                    {hasSpecial ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
+                  <div className={`flex items-center gap-1.5 ${hasSpecial ? 'text-secondary font-medium' : 'text-slate-500'}`}>
+                    {hasSpecial ? <Check className="w-3.5 h-3.5 text-secondary" /> : <X className="w-3.5 h-3.5 text-slate-400" />}
                     <span>Special character</span>
                   </div>
                 </div>
@@ -144,7 +151,7 @@ export const StaffPage: React.FC = () => {
             <button
               type="submit"
               disabled={isLoading || !isPasswordValid}
-              className="w-full py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50"
+              className="w-full py-2.5 px-4 bg-primary hover:bg-primary-hover text-white text-xs font-semibold rounded-lg shadow-sm disabled:opacity-50 transition-all cursor-pointer"
             >
               {isLoading ? 'Creating account...' : 'Provision Staff Account'}
             </button>
@@ -152,8 +159,8 @@ export const StaffPage: React.FC = () => {
         </div>
 
         {/* Security & Roles Explainer Card */}
-        <div className="bg-white rounded-card p-6 border border-slate-200/80 shadow-soft space-y-4">
-          <div className="flex items-center gap-2 text-indigo-600 text-xs font-semibold">
+        <div className="bg-white rounded-card p-6 border border-slate-200/90 shadow-sm space-y-4">
+          <div className="flex items-center gap-2 text-primary text-xs font-semibold">
             <ShieldCheck className="w-4 h-4" />
             <span>Role & Permission Scope</span>
           </div>
@@ -186,4 +193,3 @@ export const StaffPage: React.FC = () => {
     </div>
   );
 };
-
