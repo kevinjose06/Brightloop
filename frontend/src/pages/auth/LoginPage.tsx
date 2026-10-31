@@ -21,7 +21,7 @@ export const LoginPage: React.FC = () => {
     try {
       const res = await api.post('/auth/login', { email, password });
       const user = res.data.data;
-      login(user);
+      login(user, res.data.token);
       if (user.role === 'CUSTOMER') {
         navigate('/portal');
       } else {

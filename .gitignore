@@ -5,6 +5,10 @@ Brightloop Subscription Management System PRD and Build Plan.md
 *.PRD.md
 *.prd.md
 
+# Ignored directories
+docs/
+apps/
+
 # Dependencies
 node_modules/
 .pnpm-store/

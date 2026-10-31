@@ -2,6 +2,8 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import path from 'path';
+import fs from 'fs';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 import { prisma } from './lib/prisma.js';
@@ -33,7 +35,7 @@ app.use(
 app.use(cookieParser());
 app.use(express.json());
 
-// Request ID & High precision response timer (PRD §13)
+// Request ID & High precision response timer (PRD Ã‚Â§13)
 app.use((req, res, next) => {
   const startHrTime = process.hrtime();
   req.requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
@@ -75,7 +77,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Health check endpoint (PRD §12)
+// Health check endpoint (PRD Ã‚Â§12)
 app.get('/healthz', async (_req, res) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -123,6 +125,18 @@ app.use('/api/v1/subscriptions', subscriptionRoutes);
 app.use('/api/v1', billingRoutes);
 app.use('/api/v1/reports', reportRoutes);
 app.use('/api/v1/portal', portalRoutes);
+
+// In production, serve the compiled web frontend if dist directory exists
+const webDistPath = path.resolve(__dirname, '../../frontend/dist');
+if (fs.existsSync(webDistPath)) {
+  app.use(express.static(webDistPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.startsWith('/healthz')) {
+      return next();
+    }
+    res.sendFile(path.join(webDistPath, 'index.html'));
+  });
+}
 
 // Global Error Handler
 app.use(errorHandler);

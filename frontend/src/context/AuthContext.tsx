@@ -44,14 +44,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, []);
 
-  const login = (userData: User) => {
+  const login = (userData: User, token?: string) => {
     setUser(userData);
+    if (token) {
+      localStorage.setItem('brightloop_token', token);
+    }
   };
 
   const logout = async () => {
     try {
       await api.post('/auth/logout');
     } finally {
+      localStorage.removeItem('brightloop_token');
       setUser(null);
       window.location.href = '/login';
     }
@@ -85,4 +89,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
