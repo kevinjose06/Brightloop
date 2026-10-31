@@ -7,6 +7,12 @@ export default {
   theme: {
     extend: {
       colors: {
+        navy: '#0F172A',
+        'indigo-700': '#3730A3',
+        'teal-700': '#0F766E',
+        page: '#F8FAFC',
+        border: '#E2E8F0',
+        'on-navy-muted': '#CBD5E1',
         brand: {
           50: '#EEF2FF',
           100: '#E0E7FF',
@@ -36,4 +42,3 @@ export default {
   },
   plugins: [],
 }
-
