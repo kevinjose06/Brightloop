@@ -1,0 +1,29 @@
+{
+  "name": "brightloop-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Brightloop Subscription Management System - Hackathon Edition",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/api & npm run dev --workspace=apps/web",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:worker": "npm run dev --workspace=apps/worker",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspace=apps/api",
+    "prisma:generate": "npm run prisma:generate --workspace=apps/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace=apps/api",
+    "prisma:seed": "npm run prisma:seed --workspace=apps/api"
+  },
+  "keywords": [
+    "subscription-management",
+    "billing-engine",
+    "saas",
+    "brightloop"
+  ],
+  "author": "Brightloop Team",
+  "license": "MIT"
+}
+
